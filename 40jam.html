@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Pemantauan Kursus Unit NCD 2026</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .scroll-custom::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .scroll-custom::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .scroll-custom::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- NOTIFIKASI KHAS (Sistem Mesej Ganti Alert) -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full pointer-events-none"></div>
+
+    <!-- DIALOG PENGESAHAN MODAL -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl transform scale-95 opacity-0 transition-all duration-300 p-6" id="confirm-modal-box">
+            <div class="flex items-center gap-4 text-emerald-600 mb-4">
+                <div class="p-3 bg-emerald-50 rounded-full" id="confirm-icon-bg">
+                    <i data-lucide="help-circle" class="w-6 h-6 text-emerald-600" id="confirm-icon"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800" id="confirm-title">Pengesahan</h3>
+            </div>
+            <p class="text-slate-600 mb-6" id="confirm-message">Adakah anda pasti untuk meneruskan tindakan ini?</p>
+            <div class="flex gap-3 justify-end">
+                <button onclick="closeConfirmModal(false)" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition font-medium">Batal</button>
+                <button onclick="closeConfirmModal(true)" class="px-5 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-medium" id="confirm-submit-btn">Ya, Teruskan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH STAF BARU (SIMULASI) -->
+    <div id="staff-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-slate-800">Tambah Nama Staf Baru (Simulasi)</h3>
+                <button onclick="toggleStaffModal(false)" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Penuh Staf (Seperti nama Sheet)</label>
+                <input type="text" id="new-staff-name" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="cth: Dr. Khairul Azhar">
+            </div>
+            <div class="flex gap-3 justify-end">
+                <button onclick="toggleStaffModal(false)" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition">Batal</button>
+                <button onclick="addNewStaff()" class="px-5 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition">Tambah Staf</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HALAMAN LOG MASUK KESELAMATAN (NCD Gateway) -->
+    <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-emerald-900 to-slate-900 z-40 flex items-center justify-center p-4 transition-all duration-500">
+        <div class="bg-white/95 backdrop-blur-md p-8 rounded-3xl max-w-md w-full shadow-2xl text-center border border-white/20">
+            <div class="inline-flex p-4 bg-emerald-50 rounded-2xl mb-4 text-emerald-600">
+                <i data-lucide="shield-check" class="w-12 h-12"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-1">Sistem Keselamatan Unit NCD</h2>
+            <p class="text-slate-500 text-sm mb-6">Dashboard ini dihadkan kepada staf Unit NCD sahaja. Sila masukkan Kod Laluan Unit.</p>
+            
+            <div class="mb-6">
+                <input type="password" id="ncd-passcode" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-center text-lg tracking-widest focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="••••••••">
+                <p class="text-xs text-slate-400 mt-2">Panduan: Gunakan kod laluan default <span class="font-bold text-slate-600">NCD2026</span></p>
+            </div>
+            
+            <button onclick="attemptLogin()" class="w-full py-3 bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-600/20 hover:bg-emerald-700 transition duration-300 flex items-center justify-center gap-2">
+                <span>Akses Dashboard</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- STRUKTUR UTAMA APLIKASI (DIPAPARKAN SELEPAS LOG MASUK) -->
+    <div id="main-app" class="hidden flex-1 flex flex-col md:flex-row">
+        
+        <!-- SIDEBAR UTAMA DESKTOP -->
+        <aside class="w-full md:w-64 bg-slate-900 text-slate-100 flex flex-col border-r border-slate-800 shrink-0">
+            <!-- Header Sidebar -->
+            <div class="p-6 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-emerald-600 rounded-xl text-white">
+                        <i data-lucide="activity" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base leading-tight tracking-wide">UNIT NCD</h1>
+                        <p class="text-emerald-400 text-xs font-semibold uppercase">Laporan Kursus 2026</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Sambungan Google Sheet -->
+            <div class="p-4 mx-4 my-4 bg-slate-800 rounded-2xl border border-slate-700/50">
+                <div class="flex items-center gap-2 mb-2">
+                    <span id="connection-dot" class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span id="connection-text" class="text-xs font-bold text-slate-300">Mod Simulasi</span>
+                </div>
+                <p id="connection-desc" class="text-[11px] text-slate-400">Menjalankan pangkalan data simulasi luar talian.</p>
+                <button onclick="switchTab('tab-integrasi')" class="mt-3 w-full py-1.5 bg-slate-700 text-[11px] text-emerald-400 hover:text-white hover:bg-emerald-600 rounded-lg transition font-medium">
+                    Sediakan Live Google Sheet
+                </button>
+            </div>
+
+            <!-- Menu Navigasi -->
+            <nav class="flex-1 px-4 space-y-1">
+                <button onclick="switchTab('tab-dashboard')" id="btn-tab-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white bg-slate-800 text-emerald-400">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span>Utama & Ringkasan</span>
+                </button>
+                <button onclick="switchTab('tab-individu')" id="btn-tab-individu" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                    <span>Prestasi Individu</span>
+                </button>
+                <button onclick="switchTab('tab-tambah')" id="btn-tab-tambah" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    <span>Kemas Kini Latihan</span>
+                </button>
+                <button onclick="switchTab('tab-integrasi')" id="btn-tab-integrasi" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl transition text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span>Integrasi & Tetapan</span>
+                </button>
+            </nav>
+
+            <!-- Footer Sidebar / Profil Pengguna -->
+            <div class="p-4 border-t border-slate-800 mt-auto flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-xs">
+                        NCD
+                    </div>
+                    <div class="text-left">
+                        <p class="text-xs font-semibold text-slate-200">Kakitangan NCD</p>
+                        <p class="text-[10px] text-slate-400">Log Masuk Sah</p>
+                    </div>
+                </div>
+                <button onclick="logout()" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-red-400 transition" title="Log Keluar">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- KANDUNGAN UTAMA -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            
+            <!-- MOBILE TOP NAVIGATION BAR -->
+            <header class="md:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="p-1.5 bg-emerald-600 rounded-lg text-white">
+                        <i data-lucide="activity" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-bold text-sm">Dashboard Kursus NCD</span>
+                </div>
+                <!-- Status & Logout -->
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                        Simulasi
+                    </span>
+                    <button onclick="logout()" class="text-slate-300 hover:text-red-400">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- MOBILE BOTTOM NAVIGATION -->
+            <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 z-30 flex justify-around py-2">
+                <button onclick="switchTab('tab-dashboard')" class="mobile-nav-btn flex flex-col items-center text-emerald-400 text-[10px] font-medium" id="mbtn-tab-dashboard">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 mb-0.5"></i>
+                    <span>Utama</span>
+                </button>
+                <button onclick="switchTab('tab-individu')" class="mobile-nav-btn flex flex-col items-center text-slate-400 text-[10px] font-medium" id="mbtn-tab-individu">
+                    <i data-lucide="user" class="w-5 h-5 mb-0.5"></i>
+                    <span>Individu</span>
+                </button>
+                <button onclick="switchTab('tab-tambah')" class="mobile-nav-btn flex flex-col items-center text-slate-400 text-[10px] font-medium" id="mbtn-tab-tambah">
+                    <i data-lucide="plus-circle" class="w-5 h-5 mb-0.5"></i>
+                    <span>Kemaskini</span>
+                </button>
+                <button onclick="switchTab('tab-integrasi')" class="mobile-nav-btn flex flex-col items-center text-slate-400 text-[10px] font-medium" id="mbtn-tab-integrasi">
+                    <i data-lucide="settings" class="w-5 h-5 mb-0.5"></i>
+                    <span>Integrasi</span>
+                </button>
+            </nav>
+
+            <!-- KAWASAN KANDUNGAN SKRIN (Scrollable) -->
+            <div class="flex-1 overflow-y-auto pb-20 md:pb-6 p-4 md:p-8 space-y-6">
+                
+                <!-- HEADER SEKSYEN -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-slate-800" id="current-section-title">Pemantauan Kursus 40 Jam</h2>
+                        <p class="text-slate-500 text-xs md:text-sm">Prestasi & Pengurusan Jam Kursus Kakitangan Unit NCD Tahun 2026</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="syncData()" class="px-4 py-2 bg-emerald-50 text-emerald-700 font-semibold text-xs rounded-xl border border-emerald-200 hover:bg-emerald-100 transition duration-200 flex items-center gap-2">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5" id="sync-spinner"></i>
+                            <span>Segarkan Data</span>
+                        </button>
+                        <span id="last-sync-time" class="text-[11px] text-slate-400 italic">Sedia</span>
+                    </div>
+                </div>
+
+                <!-- TAB 1: DASHBOARD UTAMA -->
+                <div id="tab-dashboard" class="tab-content space-y-6">
+                    
+                    <!-- KAD METRIKA UNIT -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Kad 1: Jumlah Kakitangan -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jumlah Kakitangan</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-total-staff">0</h3>
+                                <p class="text-[11px] text-slate-400 mt-1">Dalam unit NCD</p>
+                            </div>
+                            <div class="p-3.5 bg-blue-50 text-blue-600 rounded-xl">
+                                <i data-lucide="users" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+
+                        <!-- Kad 2: Melepasi 40 Jam -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Capai Sasaran (40j)</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-achieved-staff">0</h3>
+                                <p class="text-[11px] text-emerald-600 mt-1 font-medium" id="stat-achieved-percent">0% daripada staf</p>
+                            </div>
+                            <div class="p-3.5 bg-emerald-50 text-emerald-600 rounded-xl">
+                                <i data-lucide="award" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+
+                        <!-- Kad 3: Purata Jam Terkumpul -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Purata Jam Kursus</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-avg-hours">0j</h3>
+                                <p class="text-[11px] text-slate-400 mt-1">Purata jam per kakitangan</p>
+                            </div>
+                            <div class="p-3.5 bg-purple-50 text-purple-600 rounded-xl">
+                                <i data-lucide="clock" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+
+                        <!-- Kad 4: Jumlah Jam Keseluruhan -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jumlah Jam Unit</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1" id="stat-total-hours">0j</h3>
+                                <p class="text-[11px] text-slate-400 mt-1">Digabungkan keseluruhan</p>
+                            </div>
+                            <div class="p-3.5 bg-indigo-50 text-indigo-600 rounded-xl">
+                                <i data-lucide="trending-up" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ANALITIK & PRESTASI SEKUMPULAN -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Chart Unit -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm lg:col-span-1 flex flex-col justify-between">
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">Status Pencapaian Sasaran</h4>
+                                <p class="text-xs text-slate-400 mb-4">Perbandingan kakitangan yang mencapai sasaran 40 jam.</p>
+                            </div>
+                            <div class="w-full relative flex items-center justify-center py-4" style="height: 220px;">
+                                <canvas id="unitChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Senarai Kedudukan Ringkas Staf -->
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm lg:col-span-2">
+                            <div class="flex justify-between items-center mb-4">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Pemantauan Semasa Prestasi Staf</h4>
+                                    <p class="text-xs text-slate-400">Peta masa nyata jam terkumpul (Kemas kini D3)</p>
+                                </div>
+                                <button onclick="toggleStaffModal(true)" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl text-xs font-bold border border-emerald-100 transition flex items-center gap-1">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                    <span>Tambah Staf</span>
+                                </button>
+                            </div>
+
+                            <div class="overflow-x-auto scroll-custom max-h-[250px]">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100 sticky top-0">
+                                            <th class="py-3 px-4">Nama Kakitangan (Sheet)</th>
+                                            <th class="py-3 px-4">Jam Latihan (D3)</th>
+                                            <th class="py-3 px-4">Status Pencapaian</th>
+                                            <th class="py-3 px-4 w-40">Progress</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dashboard-staff-table-body" class="divide-y divide-slate-50">
+                                        <!-- Diisi oleh Javascript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: PRESTASI INDIVIDU -->
+                <div id="tab-individu" class="tab-content hidden space-y-6">
+                    
+                    <!-- PILIHAN DROPDOWN PRESTASI -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-semibold text-slate-700">Pilih Rekod Kakitangan:</label>
+                            <p class="text-xs text-slate-400">Pilih nama staf untuk melihat perincian sejarah latihan (B5:I)</p>
+                        </div>
+                        <div class="flex-1 md:max-w-md">
+                            <select id="staff-select-view" onchange="loadIndividualData()" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                                <option value="">-- Sila Pilih Staf --</option>
+                                <!-- Ditambah secara dinamik -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="no-staff-selected" class="bg-white p-12 text-center rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center">
+                        <div class="p-4 bg-slate-50 rounded-full text-slate-400 mb-3">
+                            <i data-lucide="user-check" class="w-12 h-12"></i>
+                        </div>
+                        <p class="text-slate-500 font-medium text-sm">Sila pilih nama staf di atas untuk menjana laporan individu.</p>
+                    </div>
+
+                    <!-- KAD PERINCIAN INDIVIDU (DIPAPARKAN APABILA STAF DIPILIH) -->
+                    <div id="staff-details-section" class="hidden space-y-6">
+                        
+                        <!-- Visual Ringkasan Kakitangan -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
+                            <!-- Kad Maklumat D3 Staf -->
+                            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm md:col-span-1 flex flex-col justify-between">
+                                <div>
+                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-md bg-slate-100 text-slate-600 mb-4 inline-block uppercase">PROFIL UNIT NCD</span>
+                                    <h3 id="detail-staff-name" class="text-lg font-bold text-slate-800 mt-2">NAMA STAF</h3>
+                                    <p class="text-xs text-slate-400 mt-1">Kakitangan Berdaftar Unit NCD</p>
+                                </div>
+                                <div class="border-t border-slate-100 pt-4 mt-6">
+                                    <p class="text-xs font-semibold text-slate-400 uppercase">Jumlah Jam Terkumpul (Sel D3)</p>
+                                    <div class="flex items-baseline gap-2 mt-1">
+                                        <span id="detail-total-hours" class="text-4xl font-extrabold text-slate-800">0</span>
+                                        <span class="text-slate-400 font-semibold text-sm">/ 40 jam</span>
+                                    </div>
+                                    <div id="detail-status-badge" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold">
+                                        Status
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bar Kemajuan & Keperluan Jam -->
+                            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm md:col-span-2 flex flex-col justify-between">
+                                <div class="space-y-2">
+                                    <h4 class="font-bold text-slate-800 text-sm">Kemajuan Sasaran Tahunan</h4>
+                                    <p class="text-xs text-slate-400">Sasaran minimal adalah 40 jam setahun seperti yang ditetapkan oleh KKM.</p>
+                                </div>
+                                
+                                <div class="my-6">
+                                    <div class="flex justify-between items-center text-xs font-bold text-slate-600 mb-2">
+                                        <span id="progress-percent-text">Pencapaian: 0%</span>
+                                        <span id="hours-left-text">Baki: 40 jam lagi</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 rounded-full h-4 overflow-hidden p-0.5 border border-slate-200">
+                                        <div id="detail-progress-bar" class="h-full rounded-full transition-all duration-700 ease-out flex items-center justify-end px-2" style="width: 0%;">
+                                            <span class="text-[9px] text-white font-extrabold" id="progress-bar-label">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-start gap-3">
+                                    <div class="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg shrink-0">
+                                        <i data-lucide="info" class="w-4 h-4"></i>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-relaxed">
+                                        Sebarang perubahan pada jadual sejarah di bawah akan mengemas kini jumlah jam terkumpul di atas. Dalam fail Google Sheet fizikal, jumlah ini dikira secara automatik di sel <strong class="text-emerald-700">D3</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Jadual Perincian Sejarah Latihan (B5:I) -->
+                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-sm">Sejarah Latihan & Kursus (Kawasan B5:I)</h4>
+                                    <p class="text-xs text-slate-400">Senarai latihan berdaftar bagi staf ini sepanjang tahun 2026</p>
+                                </div>
+                                <div class="flex items-center gap-2 w-full sm:w-auto">
+                                    <div class="relative flex-1 sm:w-64">
+                                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 text-slate-400"></i>
+                                        <input type="text" id="training-search" oninput="filterTrainingTable()" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Cari tajuk latihan...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto scroll-custom">
+                                <table class="w-full text-left text-xs border-collapse">
+                                    <thead>
+                                        <tr class="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-100 tracking-wider">
+                                            <th class="py-3.5 px-4 text-center w-12">BIL</th>
+                                            <th class="py-3.5 px-4">JENIS</th>
+                                            <th class="py-3.5 px-4">TARIKH</th>
+                                            <th class="py-3.5 px-4 min-w-[200px]">TAJUK LATIHAN (Wajib)</th>
+                                            <th class="py-3.5 px-4">KATEGORI</th>
+                                            <th class="py-3.5 px-4">ANJURAN</th>
+                                            <th class="py-3.5 px-4">TEMPAT</th>
+                                            <th class="py-3.5 px-4 text-center w-24">TEMPOH (JAM)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="individual-training-table-body" class="divide-y divide-slate-100">
+                                        <!-- Diisi secara dinamik -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- TAB 3: BORANG KEMAS KINI LATIHAN -->
+                <div id="tab-tambah" class="tab-content hidden max-w-3xl mx-auto space-y-6">
+                    
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        
+                        <div class="p-6 border-b border-slate-100 bg-gradient-to-r from-emerald-600 to-teal-600 text-white">
+                            <h3 class="text-lg font-bold">Borang Daftar / Kemas Kini Latihan</h3>
+                            <p class="text-emerald-100 text-xs mt-1">Daftarkan latihan baru. Data akan ditulis terus ke kawasan sel B5:I di bawah sheet nama staf yang dipilih.</p>
+                        </div>
+
+                        <form id="add-training-form" class="p-6 space-y-6">
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
+                                <!-- Pilih Staf (Pilihan Dropdown Dinamik) -->
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Nama Staf (Sheet)*</label>
+                                    <select id="form-staff-select" required class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                                        <option value="">-- Pilih Staf --</option>
+                                        <!-- Dinamik -->
+                                    </select>
+                                    <p class="text-[10px] text-slate-400">Pilih nama staf yang ingin dikemas kini laporannya.</p>
+                                </div>
+
+                                <!-- Jenis Latihan -->
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Jenis Latihan*</label>
+                                    <select id="form-type" required class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                                        <option value="KURSUS">KURSUS</option>
+                                        <option value="BENGKEL">BENGKEL</option>
+                                        <option value="TAKLIMAT">TAKLIMAT</option>
+                                        <option value="CME">CME</option>
+                                    </select>
+                                </div>
+
+                                <!-- Tarikh Latihan -->
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Tarikh*</label>
+                                    <input type="date" id="form-date" required class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                                </div>
+
+                                <!-- Tempoh Jam (Wajib) -->
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Tempoh Latihan (Jam)*</label>
+                                    <input type="number" id="form-hours" min="0.5" step="0.5" placeholder="cth: 3.5 atau 4" required class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                                    <p class="text-[10px] text-slate-400">Wajib diisi. Nilai akan dimasukkan dalam pengiraan auto D3.</p>
+                                </div>
+
+                            </div>
+
+                            <!-- Tajuk Latihan (Wajib) -->
+                            <div class="space-y-1">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Tajuk Latihan / Kursus*</label>
+                                <input type="text" id="form-title" placeholder="cth: Bengkel Pengurusan Penyakit NCD Di Peringkat Primer" required class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                                <p class="text-[10px] text-slate-400">Wajib diisi.</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
+                                <!-- Kategori -->
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Kategori</label>
+                                    <input type="text" id="form-category" placeholder="cth: Klinikal, Umum, Pembangunan" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                                </div>
+
+                                <!-- Anjuran -->
+                                <div class="space-y-1">
+                                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Anjuran</label>
+                                    <select id="form-organizer" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                                        <option value="JKNK">JKNK</option>
+                                        <option value="PKDKM">PKDKM</option>
+                                        <option value="AGENSI LUAR">AGENSI LUAR</option>
+                                        <option value="LAIN-LAIN">LAIN-LAIN</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <!-- Tempat -->
+                            <div class="space-y-1">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Tempat</label>
+                                <input type="text" id="form-venue" placeholder="cth: Bilik Mesyuarat Utama Pejabat Kesihatan Daerah" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
+                            </div>
+
+                            <!-- Butang Submit -->
+                            <div class="pt-4 border-t border-slate-100 flex justify-end">
+                                <button type="button" onclick="submitTrainingForm()" class="px-6 py-3 bg-emerald-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/10 hover:bg-emerald-700 transition duration-300 flex items-center gap-2">
+                                    <i data-lucide="check-square" class="w-4 h-4"></i>
+                                    <span>Hantar & Rekod Latihan</span>
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+                <!-- TAB 4: INTEGRASI DAN TETAPAN -->
+                <div id="tab-integrasi" class="tab-content hidden space-y-6">
+                    
+                    <!-- KAD TETAPAN WEB API -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                        <div class="flex items-center gap-3 text-emerald-600">
+                            <div class="p-2.5 bg-emerald-50 rounded-xl">
+                                <i data-lucide="link-2" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-800">Sambungan Google Apps Script Web App</h3>
+                                <p class="text-xs text-slate-400">Sambungkan sistem secara terus kepada Google Sheet fizikal anda</p>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-100 pt-4 space-y-3">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Web App URL (Apps Script)*</label>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <input type="url" id="settings-webapp-url" class="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50" placeholder="https://script.google.com/macros/s/.../exec">
+                                <button onclick="saveConnectionSettings()" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition duration-300 shrink-0">
+                                    Sambung & Simpan
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-slate-500 italic">
+                                *Sila buat rujukan kepada panduan di bawah untuk membina Web App API menggunakan Google Apps Script secara percuma.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- PANDUAN LANGKAH-LANGKAH INTEGRASI -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">Langkah Integrasi Google Sheet & Apps Script</h3>
+                            <p class="text-xs text-slate-400 mt-1">Ikuti 5 langkah mudah ini untuk mengaktifkan mod automatik live.</p>
+                        </div>
+
+                        <div class="space-y-4 text-xs text-slate-600">
+                            <!-- Langkah 1 -->
+                            <div class="flex gap-3">
+                                <div class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">1</div>
+                                <div class="space-y-1">
+                                    <p class="font-bold text-slate-800">Buka Google Sheet Laporan</p>
+                                    <p class="leading-relaxed">Buka fail Google Sheet sasaran anda. Klik menu atas <span class="font-bold bg-slate-100 px-1 py-0.5 rounded">Extensions</span> > <span class="font-bold bg-slate-100 px-1 py-0.5 rounded">Apps Script</span>.</p>
+                                </div>
+                            </div>
+                            <!-- Langkah 2 -->
+                            <div class="flex gap-3">
+                                <div class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">2</div>
+                                <div class="space-y-1">
+                                    <p class="font-bold text-slate-800">Tampalkan Kod Script</p>
+                                    <p class="leading-relaxed">Padamkan sebarang kod lalai di dalam editor, dan tampalkan kod Google Apps Script yang disediakan di dalam kotak kelabu di bawah.</p>
+                                </div>
+                            </div>
+                            <!-- Langkah 3 -->
+                            <div class="flex gap-3">
+                                <div class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">3</div>
+                                <div class="space-y-1">
+                                    <p class="font-bold text-slate-800">Deploy sebagai Web App</p>
+                                    <p class="leading-relaxed">Klik butang <span class="font-bold bg-slate-100 px-1">Deploy</span> > <span class="font-bold bg-slate-100 px-1">New Deployment</span>. Pilih jenis <span class="font-bold bg-slate-100 px-1">Web App</span>.</p>
+                                    <ul class="list-disc pl-4 space-y-1 mt-1 text-slate-500">
+                                        <li>Tetapkan "Execute as" kepada <span class="font-bold">Me (Emel anda)</span>.</li>
+                                        <li>Tetapkan "Who has access" kepada <span class="font-bold">Anyone</span>.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Langkah 4 -->
+                            <div class="flex gap-3">
+                                <div class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">4</div>
+                                <div class="space-y-1">
+                                    <p class="font-bold text-slate-800">Sahkan Kebenaran & Salin URL</p>
+                                    <p class="leading-relaxed">Klik "Deploy", benarkan kebenaran akaun anda (*Authorize access*), kemudian salin <span class="font-bold">Web App URL</span> yang dipaparkan.</p>
+                                </div>
+                            </div>
+                            <!-- Langkah 5 -->
+                            <div class="flex gap-3">
+                                <div class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">5</div>
+                                <div class="space-y-1">
+                                    <p class="font-bold text-slate-800 font-medium">Tampal & Jalankan</p>
+                                    <p class="leading-relaxed">Tampalkan URL yang disalin ke dalam kotak input "Web App URL" di bahagian atas halaman ini, kemudian klik "Sambung & Simpan".</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KOD APPS SCRIPT UNTUK DISALIN -->
+                        <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 text-slate-200">
+                            <div class="bg-slate-800 px-4 py-3 border-b border-slate-700 flex justify-between items-center">
+                                <span class="text-xs font-bold text-emerald-400">Google Apps Script (Code.gs)</span>
+                                <button onclick="copyAppsScript()" class="px-2.5 py-1 bg-slate-700 text-[10px] hover:bg-slate-600 hover:text-white rounded transition flex items-center gap-1 font-semibold">
+                                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                    <span id="copy-btn-text">Salin Kod</span>
+                                </button>
+                            </div>
+                            <pre class="p-4 text-[10px] font-mono overflow-x-auto scroll-custom leading-normal max-h-[300px]" id="apps-script-code">
+// ==========================================
+// GOOGLE APPS SCRIPT: INTEGRASI KURSUS NCD 2026
+// Tarikh Kemaskini: 2026-05-22
+// ==========================================
+
+function doGet(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheets = ss.getSheets();
+  var response = {
+    success: true,
+    staffList: [],
+    data: {}
+  };
+  
+  for (var i = 0; i < sheets.length; i++) {
+    var sheet = sheets[i];
+    var name = sheet.getName();
+    
+    // Abaikan jika ada sheet khusus rujukan/konfigurasi (contoh: "CONFIG")
+    if (name.toUpperCase() === "CONFIG" || name.toUpperCase() === "TEMPLATE") continue;
+    
+    response.staffList.push(name);
+    
+    // Ambil nilai sel D3 (Jumlah Jam Kursus Terkumpul)
+    var totalHours = sheet.getRange("D3").getValue() || 0;
+    
+    // Ambil senarai rekod dari B5:I
+    var lastRow = sheet.getLastRow();
+    var trainingList = [];
+    
+    if (lastRow >= 5) {
+      var range = sheet.getRange("B5:I" + lastRow);
+      var values = range.getValues();
+      
+      for (var j = 0; j < values.length; j++) {
+        var row = values[j];
+        // Pastikan ruangan tajuk latihan (Indeks ke-3 iaitu Kolum E) mempunyai nilai
+        if (row[3]) {
+          var rawDate = row[2]; // Kolum D
+          var formattedDate = "";
+          if (rawDate instanceof Date) {
+            formattedDate = Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "yyyy-MM-dd");
+          } else {
+            formattedDate = rawDate ? rawDate.toString() : "";
+          }
+          
+          trainingList.push({
+            bil: row[0] || (j + 1), // Kolum B
+            jenis: row[1] || "",    // Kolum C
+            tarikh: formattedDate,
+            tajuk: row[3] || "",    // Kolum E
+            kategori: row[4] || "", // Kolum F
+            anjuran: row[5] || "",  // Kolum G
+            tempat: row[6] || "",   // Kolum H
+            tempoh: parseFloat(row[7]) || 0 // Kolum I
+          });
+        }
+      }
+    }
+    
+    response.data[name] = {
+      totalHours: parseFloat(totalHours) || 0,
+      training: trainingList
+    };
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(response))
+    .setMimeType(ContentService.MimeType.JSON)
+    .setHeader("Access-Control-Allow-Origin", "*");
+}
+
+function doPost(e) {
+  try {
+    var params = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(params.staffName);
+    
+    if (!sheet) {
+      return ContentService.createTextOutput(JSON.stringify({ success: false, message: "Ralat: Tiada nama staf bernama '" + params.staffName + "' di Google Sheet." }))
+        .setMimeType(ContentService.MimeType.JSON)
+        .setHeader("Access-Control-Allow-Origin", "*");
+    }
+    
+    var lastRow = sheet.getLastRow();
+    var nextRow = lastRow < 5 ? 5 : lastRow + 1;
+    var bil = nextRow - 4; // Pengiraan Bilangan Automatik
+    
+    // Tulis data ke range B5:I
+    sheet.getRange(nextRow, 2).setValue(bil); // B: Bil
+    sheet.getRange(nextRow, 3).setValue(params.jenis); // C: Jenis Latihan
+    sheet.getRange(nextRow, 4).setValue(params.tarikh); // D: Tarikh
+    sheet.getRange(nextRow, 5).setValue(params.tajuk); // E: Tajuk Latihan
+    sheet.getRange(nextRow, 6).setValue(params.kategori); // F: Kategori
+    sheet.getRange(nextRow, 7).setValue(params.anjuran); // G: Anjuran
+    sheet.getRange(nextRow, 8).setValue(params.tempat); // H: Tempat
+    sheet.getRange(nextRow, 9).setValue(parseFloat(params.tempoh)); // I: Tempoh (Jam)
+    
+    return ContentService.createTextOutput(JSON.stringify({ success: true, message: "Pendaftaran latihan berjaya dikemas kini!" }))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader("Access-Control-Allow-Origin", "*");
+      
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, message: "Ralat: " + error.toString() }))
+      .setMimeType(ContentService.MimeType.JSON)
+      .setHeader("Access-Control-Allow-Origin", "*");
+  }
+}</pre>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- CODE CONTROLLERS & LOGICS -->
+    <script>
+        // --- DATA STATE (PANGKALAN DATA CONTOH / SIMULASI) ---
+        const DEFAULT_PASSCODE = "NCD2026";
+        let isLiveMode = false;
+        let webAppUrl = "";
+        let globalChart = null;
+
+        // Data Simulasi Mula
+        let mockData = {
+            staffList: [
+                "Dr. Ahmad Fahmi bin Zakaria",
+                "Puan Siti Aminah binti Idris",
+                "Encik Khairul Azhar bin Ramli",
+                "Cik Nurul Hidayah binti Osman",
+                "Puan Sarah Jessica"
+            ],
+            data: {
+                "Dr. Ahmad Fahmi bin Zakaria": {
+                    totalHours: 42,
+                    training: [
+                        { bil: 1, jenis: "KURSUS", tarikh: "2026-01-12", tajuk: "Pencegahan Diabetes di Peringkat Primer", kategori: "Klinikal", anjuran: "JKNK", tempat: "Auditorium JKN Kedah", tempoh: 15 },
+                        { bil: 2, jenis: "BENGKEL", tarikh: "2026-02-18", tajuk: "Aplikasi Modul Kesihatan NCD 2026", kategori: "Klinikal", anjuran: "PKDKM", tempat: "Bilik Latihan PKD", tempoh: 12 },
+                        { bil: 3, jenis: "CME", tarikh: "2026-03-05", tajuk: "Rawatan Terkini Hipertensi Kronik", kategori: "Klinikal", anjuran: "JKNK", tempat: "Dewan Seminar", tempoh: 3 },
+                        { bil: 4, jenis: "TAKLIMAT", tarikh: "2026-04-20", tajuk: "Taklimat Saringan Kanser Kolorektal", kategori: "Umum", anjuran: "AGENSI LUAR", tempat: "Hospital Sultanah Bahiyah", tempoh: 12 }
+                    ]
+                },
+                "Puan Siti Aminah binti Idris": {
+                    totalHours: 35,
+                    training: [
+                        { bil: 1, jenis: "KURSUS", tarikh: "2026-01-15", tajuk: "Kursus Kaunseling Pemakanan & NCD", kategori: "Kaunseling", anjuran: "PKDKM", tempat: "Dewan PKD", tempoh: 20 },
+                        { bil: 2, jenis: "BENGKEL", tarikh: "2026-03-10", tajuk: "Bengkel Pengurusan Kencing Manis", kategori: "Klinikal", anjuran: "JKNK", tempat: "Bilik Gerakan", tempoh: 10 },
+                        { bil: 3, jenis: "CME", tarikh: "2026-04-12", tajuk: "Komplikasi Penyakit Kardiovaskular", kategori: "Klinikal", anjuran: "LAIN-LAIN", tempat: "Klinik Kesihatan Pokok Sena", tempoh: 5 }
+                    ]
+                },
+                "Encik Khairul Azhar bin Ramli": {
+                    totalHours: 18,
+                    training: [
+                        { bil: 1, jenis: "BENGKEL", tarikh: "2026-02-05", tajuk: "Bengkel Advokasi NCD dalam Komuniti", kategori: "Promosi", anjuran: "AGENSI LUAR", tempat: "Pusat Komuniti Pokok Sena", tempoh: 12 },
+                        { bil: 2, jenis: "CME", tarikh: "2026-03-15", tajuk: "Saringan Obesiti Golongan Dewasa", kategori: "Umum", anjuran: "PKDKM", tempat: "Bilik Taklimat KK", tempoh: 6 }
+                    ]
+                },
+                "Cik Nurul Hidayah binti Osman": {
+                    totalHours: 48,
+                    training: [
+                        { bil: 1, jenis: "KURSUS", tarikh: "2026-01-10", tajuk: "Klinikal Advokasi Insulin & Rawatan", kategori: "Klinikal", anjuran: "JKNK", tempat: "Hotel Grand Alora", tempoh: 30 },
+                        { bil: 2, jenis: "BENGKEL", tarikh: "2026-02-22", tajuk: "Bengkel Amalan Gaya Hidup Sihat", kategori: "Promosi", anjuran: "PKDKM", tempat: "Dewan Komuniti", tempoh: 12 },
+                        { bil: 3, jenis: "CME", tarikh: "2026-04-05", tajuk: "Pendedahan Awal Kanser Serviks", kategori: "Klinikal", anjuran: "LAIN-LAIN", tempat: "Klinik Kesihatan", tempoh: 6 }
+                    ]
+                },
+                "Puan Sarah Jessica": {
+                    totalHours: 8,
+                    training: [
+                        { bil: 1, jenis: "TAKLIMAT", tarikh: "2026-03-22", tajuk: "Taklimat Kebangsaan Program Hebat NCD", kategori: "Umum", anjuran: "JKNK", tempat: "Bilik Seminar JKN", tempoh: 8 }
+                    ]
+                }
+            }
+        };
+
+        // Pemalar Operasi Global
+        let currentData = JSON.parse(JSON.stringify(mockData)); // Data aktif semasa
+        let activeTab = "tab-dashboard";
+        let confirmPromiseResolve = null;
+
+        // --- SISTEM PEMULA (ONLOAD) ---
+        window.onload = function() {
+            // Check session login
+            if (sessionStorage.getItem("ncd_logged_in") === "true") {
+                document.getElementById("login-screen").classList.add("hidden");
+                document.getElementById("main-app").classList.remove("hidden");
+                initializeSystem();
+            }
+            
+            // Check saved settings
+            const savedUrl = localStorage.getItem("ncd_webapp_url");
+            if (savedUrl) {
+                document.getElementById("settings-webapp-url").value = savedUrl;
+                webAppUrl = savedUrl;
+                isLiveMode = true;
+                updateConnectionStatus(true);
+            }
+            
+            // Render Lucide Icons
+            lucide.createIcons();
+        };
+
+        function initializeSystem() {
+            if (isLiveMode && webAppUrl) {
+                syncData();
+            } else {
+                currentData = JSON.parse(JSON.stringify(mockData));
+                rebuildDropdowns();
+                updateDashboardStats();
+                updateLastSyncTime();
+            }
+        }
+
+        // --- SISTEM TOAST / NOTIFIKASI ---
+        function showToast(message, type = "success") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = `flex items-center gap-3 p-4 rounded-xl shadow-xl border text-xs font-semibold text-white transition-all duration-300 transform translate-x-12 opacity-0 pointer-events-auto max-w-sm ml-auto`;
+            
+            if (type === "success") {
+                toast.className += " bg-emerald-600 border-emerald-500";
+                toast.innerHTML = `<i data-lucide="check-circle-2" class="w-5 h-5"></i><span>${message}</span>`;
+            } else if (type === "error") {
+                toast.className += " bg-red-600 border-red-500";
+                toast.innerHTML = `<i data-lucide="alert-triangle" class="w-5 h-5"></i><span>${message}</span>`;
+            } else {
+                toast.className += " bg-amber-600 border-amber-500";
+                toast.innerHTML = `<i data-lucide="info" class="w-5 h-5"></i><span>${message}</span>`;
+            }
+            
+            container.appendChild(toast);
+            lucide.createIcons();
+            
+            // Animation in
+            setTimeout(() => {
+                toast.classList.remove("translate-x-12", "opacity-0");
+            }, 50);
+            
+            // Animation out & removal
+            setTimeout(() => {
+                toast.classList.add("translate-x-12", "opacity-0");
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // --- SISTEM MODAL PENGESAHAN CUSTOM ---
+        function openConfirmModal(title, message, isDangerous = false) {
+            return new Promise((resolve) => {
+                confirmPromiseResolve = resolve;
+                document.getElementById("confirm-title").innerText = title;
+                document.getElementById("confirm-message").innerText = message;
+                
+                const iconBg = document.getElementById("confirm-icon-bg");
+                const icon = document.getElementById("confirm-icon");
+                const submitBtn = document.getElementById("confirm-submit-btn");
+                
+                if (isDangerous) {
+                    iconBg.className = "p-3 bg-red-50 rounded-full";
+                    icon.className = "w-6 h-6 text-red-600";
+                    submitBtn.className = "px-5 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-medium";
+                } else {
+                    iconBg.className = "p-3 bg-emerald-50 rounded-full";
+                    icon.className = "w-6 h-6 text-emerald-600";
+                    submitBtn.className = "px-5 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition font-medium";
+                }
+                
+                document.getElementById("confirm-modal").classList.remove("hidden");
+                setTimeout(() => {
+                    document.getElementById("confirm-modal-box").classList.remove("scale-95", "opacity-0");
+                }, 50);
+            });
+        }
+
+        function closeConfirmModal(result) {
+            document.getElementById("confirm-modal-box").classList.add("scale-95", "opacity-0");
+            setTimeout(() => {
+                document.getElementById("confirm-modal").classList.add("hidden");
+                if (confirmPromiseResolve) confirmPromiseResolve(result);
+            }, 300);
+        }
+
+        // --- LOG MASUK SISTEM ---
+        function attemptLogin() {
+            const code = document.getElementById("ncd-passcode").value;
+            if (code === DEFAULT_PASSCODE) {
+                sessionStorage.setItem("ncd_logged_in", "true");
+                
+                // Animate out login screen
+                const loginScreen = document.getElementById("login-screen");
+                loginScreen.classList.add("opacity-0", "scale-105");
+                setTimeout(() => {
+                    loginScreen.classList.add("hidden");
+                    document.getElementById("main-app").classList.remove("hidden");
+                    showToast("Selamat Datang ke Dashboard Kursus Unit NCD!", "success");
+                    initializeSystem();
+                }, 500);
+            } else {
+                showToast("Kod laluan tidak sah! Hubungi Pentadbir Unit NCD.", "error");
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem("ncd_logged_in");
+            document.getElementById("ncd-passcode").value = "";
+            document.getElementById("main-app").classList.add("hidden");
+            const loginScreen = document.getElementById("login-screen");
+            loginScreen.classList.remove("hidden", "opacity-0", "scale-105");
+            showToast("Sesi tamat. Anda telah log keluar.", "info");
+        }
+
+        // --- SISTEM NAVIGASI TAB ---
+        function switchTab(tabId) {
+            activeTab = tabId;
+            
+            // Sembunyikan semua tab content
+            document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+            // Tunjukkan tab content yang dipilih
+            document.getElementById(tabId).classList.remove("hidden");
+
+            // Padam status aktif dari butang navigasi (desktop & mobile)
+            document.querySelectorAll(".nav-btn").forEach(btn => {
+                btn.classList.remove("bg-slate-800", "text-emerald-400");
+                btn.classList.add("text-slate-300");
+            });
+            document.querySelectorAll(".mobile-nav-btn").forEach(btn => {
+                btn.classList.remove("text-emerald-400");
+                btn.classList.add("text-slate-400");
+            });
+
+            // Set butang aktif semasa
+            const desktopBtn = document.getElementById(`btn-${tabId}`);
+            if (desktopBtn) {
+                desktopBtn.classList.add("bg-slate-800", "text-emerald-400");
+                desktopBtn.classList.remove("text-slate-300");
+            }
+
+            const mobileBtn = document.getElementById(`mbtn-${tabId}`);
+            if (mobileBtn) {
+                mobileBtn.classList.add("text-emerald-400");
+                mobileBtn.classList.remove("text-slate-400");
+            }
+
+            // Set tajuk halaman semasa
+            const titleEl = document.getElementById("current-section-title");
+            if (tabId === "tab-dashboard") titleEl.innerText = "Pemantauan Kursus NCD Utama";
+            if (tabId === "tab-individu") titleEl.innerText = "Laporan Prestasi Individu";
+            if (tabId === "tab-tambah") titleEl.innerText = "Kemas Kini Sejarah Latihan";
+            if (tabId === "tab-integrasi") titleEl.innerText = "Integrasi API Google Sheet";
+
+            // Trigger rendering mengikut tab
+            if (tabId === "tab-dashboard") {
+                updateDashboardStats();
+            }
+        }
+
+        // --- DINAMIK DROPDOWNS ---
+        function rebuildDropdowns() {
+            const list = currentData.staffList || [];
+            
+            // Dropdown 1: Tab Prestasi Individu
+            const selectIndividu = document.getElementById("staff-select-view");
+            const prevSelectValue = selectIndividu.value;
+            selectIndividu.innerHTML = `<option value="">-- Sila Pilih Staf --</option>`;
+            
+            // Dropdown 2: Tab Borang Pendaftaran
+            const selectForm = document.getElementById("form-staff-select");
+            selectForm.innerHTML = `<option value="">-- Pilih Staf --</option>`;
+
+            list.forEach(name => {
+                const opt1 = document.createElement("option");
+                opt1.value = name;
+                opt1.innerText = name;
+                selectIndividu.appendChild(opt1);
+
+                const opt2 = document.createElement("option");
+                opt2.value = name;
+                opt2.innerText = name;
+                selectForm.appendChild(opt2);
+            });
+
+            // Kekalkan pilihan staf jika masih wujud
+            if (list.includes(prevSelectValue)) {
+                selectIndividu.value = prevSelectValue;
+                loadIndividualData();
+            } else {
+                document.getElementById("staff-details-section").classList.add("hidden");
+                document.getElementById("no-staff-selected").classList.remove("hidden");
+            }
+        }
+
+        // --- TAMBAH STAF SIMULASI BARU ---
+        function toggleStaffModal(show) {
+            const modal = document.getElementById("staff-modal");
+            if (show) {
+                modal.classList.remove("hidden");
+                document.getElementById("new-staff-name").focus();
+            } else {
+                modal.classList.add("hidden");
+                document.getElementById("new-staff-name").value = "";
+            }
+        }
+
+        function addNewStaff() {
+            const nameInput = document.getElementById("new-staff-name");
+            const name = nameInput.value.trim();
+            if (!name) {
+                showToast("Nama tidak boleh dibiarkan kosong!", "error");
+                return;
+            }
+
+            if (currentData.staffList.includes(name)) {
+                showToast("Nama staf ini sudah wujud dalam senarai!", "error");
+                return;
+            }
+
+            // Daftarkan staf baru dalam data aktif
+            currentData.staffList.push(name);
+            currentData.data[name] = {
+                totalHours: 0,
+                training: []
+            };
+
+            showToast(`Rekod simulasi untuk ${name} berjaya dicipta!`, "success");
+            toggleStaffModal(false);
+            rebuildDropdowns();
+            updateDashboardStats();
+        }
+
+        // --- UPDATE STATS & GRAPH ---
+        function updateDashboardStats() {
+            const list = currentData.staffList || [];
+            const staffDetails = currentData.data || {};
+            
+            let totalStaff = list.length;
+            let achievedStaff = 0;
+            let cumulativeHours = 0;
+
+            const tableBody = document.getElementById("dashboard-staff-table-body");
+            tableBody.innerHTML = "";
+
+            list.forEach(name => {
+                const hours = staffDetails[name] ? staffDetails[name].totalHours : 0;
+                cumulativeHours += hours;
+
+                const isAchieved = hours >= 40;
+                if (isAchieved) achievedStaff++;
+
+                // Pengiraan progress %
+                const percent = Math.min(100, Math.round((hours / 40) * 100));
+
+                // Bina kelas warna progress
+                let barColor = "bg-red-500";
+                let badgeClass = "bg-red-50 text-red-700 border-red-200";
+                let statusText = "Belum Mencapai";
+
+                if (hours >= 40) {
+                    barColor = "bg-emerald-500";
+                    badgeClass = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                    statusText = "Selesai (Capai)";
+                } else if (hours >= 20) {
+                    barColor = "bg-amber-500";
+                    badgeClass = "bg-amber-50 text-amber-700 border-amber-200";
+                    statusText = "Kadar Sederhana";
+                }
+
+                // Append ke jadual dashboard utama
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50 transition duration-150";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-semibold text-slate-800 text-xs">${name}</td>
+                    <td class="py-3 px-4 font-bold text-slate-700 text-xs">${hours} Jam</td>
+                    <td class="py-3 px-4">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${badgeClass}">
+                            ${statusText}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden border border-slate-200">
+                                <div class="${barColor} h-full rounded-full" style="width: ${percent}%;"></div>
+                            </div>
+                            <span class="font-extrabold text-[10px] text-slate-500 w-8 text-right">${percent}%</span>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            // Kemas kini widget metrik utama
+            document.getElementById("stat-total-staff").innerText = totalStaff;
+            document.getElementById("stat-achieved-staff").innerText = achievedStaff;
+            
+            const pct = totalStaff > 0 ? Math.round((achievedStaff / totalStaff) * 100) : 0;
+            document.getElementById("stat-achieved-percent").innerText = `${pct}% daripada staf`;
+            
+            const avg = totalStaff > 0 ? (cumulativeHours / totalStaff).toFixed(1) : 0;
+            document.getElementById("stat-avg-hours").innerText = `${avg}j`;
+            document.getElementById("stat-total-hours").innerText = `${cumulativeHours}j`;
+
+            // Bina/Update Chart
+            buildChart(achievedStaff, totalStaff - achievedStaff);
+        }
+
+        function buildChart(achieved, pending) {
+            const ctx = document.getElementById('unitChart').getContext('2d');
+            
+            if (globalChart) {
+                globalChart.destroy();
+            }
+
+            // Jika kosong kedua-duanya
+            if (achieved === 0 && pending === 0) {
+                pending = 1; // Sediakan mockup sekiranya tiada staf
+            }
+
+            globalChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Selesai (≥ 40j)', 'Proses (< 40j)'],
+                    datasets: [{
+                        data: [achieved, pending],
+                        backgroundColor: ['#10b981', '#f59e0b'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff',
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 12,
+                                padding: 15,
+                                font: {
+                                    size: 10,
+                                    family: 'Inter',
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // --- PAPAR LAPORAN INDIVIDU (B5:I) ---
+        function loadIndividualData() {
+            const selectedStaff = document.getElementById("staff-select-view").value;
+            const detailSection = document.getElementById("staff-details-section");
+            const noSelection = document.getElementById("no-staff-selected");
+
+            if (!selectedStaff) {
+                detailSection.classList.add("hidden");
+                noSelection.classList.remove("hidden");
+                return;
+            }
+
+            detailSection.classList.remove("hidden");
+            noSelection.classList.add("hidden");
+
+            const records = currentData.data[selectedStaff] || { totalHours: 0, training: [] };
+
+            // Update nama & jam
+            document.getElementById("detail-staff-name").innerText = selectedStaff;
+            document.getElementById("detail-total-hours").innerText = records.totalHours;
+
+            // Kemas kini badge status individu
+            const badge = document.getElementById("detail-status-badge");
+            if (records.totalHours >= 40) {
+                badge.innerText = "CAPAI SASARAN (40 JAM)";
+                badge.className = "mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
+            } else {
+                const baki = 40 - records.totalHours;
+                badge.innerText = `BELUM CAPAI (KURANG ${baki} JAM)`;
+                badge.className = "mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200";
+            }
+
+            // Kemas kini progress bar
+            const percent = Math.min(100, Math.round((records.totalHours / 40) * 100));
+            const progressBar = document.getElementById("detail-progress-bar");
+            const progressLabel = document.getElementById("progress-bar-label");
+            const progressPercentText = document.getElementById("progress-percent-text");
+            const hoursLeftText = document.getElementById("hours-left-text");
+
+            progressBar.style.width = `${percent}%`;
+            progressLabel.innerText = `${percent}%`;
+            progressPercentText.innerText = `Pencapaian: ${percent}%`;
+            
+            if (records.totalHours >= 40) {
+                progressBar.className = "h-full rounded-full transition-all duration-700 ease-out flex items-center justify-end px-2 bg-emerald-500 shadow-md shadow-emerald-500/20";
+                hoursLeftText.innerText = "Tahniah! Sasaran tahunan selesai.";
+            } else {
+                progressBar.className = "h-full rounded-full transition-all duration-700 ease-out flex items-center justify-end px-2 bg-amber-500 shadow-md shadow-amber-500/20";
+                hoursLeftText.innerText = `Baki: ${40 - records.totalHours} jam lagi`;
+            }
+
+            // Bina baris jadual
+            renderTrainingTable(records.training);
+        }
+
+        function renderTrainingTable(trainingList) {
+            const tbody = document.getElementById("individual-training-table-body");
+            tbody.innerHTML = "";
+
+            if (!trainingList || trainingList.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="py-8 text-center text-slate-400 italic font-medium">
+                            Tiada rekod latihan didaftarkan untuk staf ini.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            trainingList.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50 transition duration-150";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 text-center font-bold text-slate-500 border-b border-slate-100">${item.bil}</td>
+                    <td class="py-3 px-4 font-bold text-slate-700 border-b border-slate-100">${item.jenis}</td>
+                    <td class="py-3 px-4 text-slate-600 border-b border-slate-100">${item.tarikh}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-800 min-w-[200px] border-b border-slate-100">${item.tajuk}</td>
+                    <td class="py-3 px-4 text-slate-500 border-b border-slate-100">${item.kategori || "-"}</td>
+                    <td class="py-3 px-4 border-b border-slate-100">
+                        <span class="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">
+                            ${item.anjuran || "TIADA"}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 text-slate-600 border-b border-slate-100">${item.tempat || "-"}</td>
+                    <td class="py-3 px-4 text-center font-extrabold text-emerald-600 border-b border-slate-100 bg-emerald-50/20">${item.tempoh} j</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- FILTER / CARIAN JADUAL ---
+        function filterTrainingTable() {
+            const query = document.getElementById("training-search").value.toLowerCase();
+            const staff = document.getElementById("staff-select-view").value;
+            if (!staff) return;
+
+            const allTraining = currentData.data[staff]?.training || [];
+            const filtered = allTraining.filter(t => t.tajuk.toLowerCase().includes(query));
+            renderTrainingTable(filtered);
+        }
+
+        // --- PENGHANTARAN BORANG BARU (SUBMIT FORM) ---
+        async function submitTrainingForm() {
+            // Dapatkan elemen borang
+            const staffName = document.getElementById("form-staff-select").value;
+            const jenis = document.getElementById("form-type").value;
+            const tarikh = document.getElementById("form-date").value;
+            const rawHours = document.getElementById("form-hours").value;
+            const tajuk = document.getElementById("form-title").value.trim();
+            const kategori = document.getElementById("form-category").value.trim();
+            const anjuran = document.getElementById("form-organizer").value;
+            const tempat = document.getElementById("form-venue").value.trim();
+
+            // Validasi data
+            if (!staffName || !tarikh || !rawHours || !tajuk) {
+                showToast("Sila lengkapkan semua ruangan berbintang (*)!", "error");
+                return;
+            }
+
+            const tempoh = parseFloat(rawHours);
+            if (isNaN(tempoh) || tempoh <= 0) {
+                showToast("Sila masukkan nilai tempoh jam yang sah!", "error");
+                return;
+            }
+
+            // Tanya pengesahan
+            const confirmAction = await openConfirmModal(
+                "Pengesahan Daftar Latihan",
+                `Adakah anda mahu mendaftarkan latihan '${tajuk}' (${tempoh} Jam) untuk ${staffName}?`
+            );
+
+            if (!confirmAction) return;
+
+            const payload = {
+                staffName,
+                jenis,
+                tarikh,
+                tajuk,
+                kategori,
+                anjuran,
+                tempat,
+                tempoh
+            };
+
+            // Hantar mengikut mod sambungan
+            if (isLiveMode && webAppUrl) {
+                // Mod LIVE: Kirim ke Google Apps Script
+                showToast("Sedang menghantar ke Google Sheet...", "info");
+                
+                try {
+                    const response = await fetchWithRetry(webAppUrl, {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                        headers: {
+                            "Content-Type": "application/plain-text" // Penting untuk elak CORS preflight ralat Apps Script
+                        }
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showToast("Pendaftaran berjaya disimpan ke Google Sheet!", "success");
+                        // Segarkan data dari sheet
+                        syncData();
+                        resetForm();
+                    } else {
+                        showToast(`Ralat Sheet: ${result.message}`, "error");
+                    }
+                } catch (err) {
+                    showToast("Gagal berkomunikasi dengan Google Apps Script Web App.", "error");
+                }
+
+            } else {
+                // Mod SIMULASI
+                const staffRecord = currentData.data[staffName];
+                if (staffRecord) {
+                    const bil = staffRecord.training.length + 1;
+                    const newRecord = {
+                        bil,
+                        jenis,
+                        tarikh,
+                        tajuk,
+                        kategori,
+                        anjuran,
+                        tempat,
+                        tempoh
+                    };
+                    
+                    const previousHours = staffRecord.totalHours;
+                    
+                    // Kemas kini jam terkumpul (simulasi pengiraan sel D3)
+                    staffRecord.training.push(newRecord);
+                    staffRecord.totalHours = parseFloat((staffRecord.totalHours + tempoh).toFixed(2));
+                    
+                    showToast("Rekod berjaya ditambahkan ke dalam pangkalan data simulasi!", "success");
+                    
+                    // Efek letusan confetti jika melepasi target 40 jam!
+                    if (previousHours < 40 && staffRecord.totalHours >= 40) {
+                        celebrateAchiever();
+                        showToast(`Syabas! ${staffName} telah melepasi sasaran 40 jam kursus! 🎉`, "success");
+                    }
+                    
+                    resetForm();
+                    updateDashboardStats();
+                    
+                    // Kemas kini paparan sekiranya staf yang sama terpilih di Tab Laporan
+                    const selectedStaff = document.getElementById("staff-select-view").value;
+                    if (selectedStaff === staffName) {
+                        loadIndividualData();
+                    }
+                }
+            }
+        }
+
+        function resetForm() {
+            document.getElementById("form-title").value = "";
+            document.getElementById("form-category").value = "";
+            document.getElementById("form-venue").value = "";
+            document.getElementById("form-hours").value = "";
+            document.getElementById("form-date").value = "";
+        }
+
+        // CONFETTI CELEBRATION
+        function celebrateAchiever() {
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 }
+            });
+        }
+
+        // --- SISTEM KONEKSI GOOGLE SHEET (INTEGRASI) ---
+        function saveConnectionSettings() {
+            const urlInput = document.getElementById("settings-webapp-url").value.trim();
+            
+            if (!urlInput) {
+                // Reset ke mod simulasi
+                localStorage.removeItem("ncd_webapp_url");
+                webAppUrl = "";
+                isLiveMode = false;
+                currentData = JSON.parse(JSON.stringify(mockData));
+                updateConnectionStatus(false);
+                rebuildDropdowns();
+                updateDashboardStats();
+                showToast("Kembali ke Mod Simulasi Tempatan.", "info");
+                return;
+            }
+
+            if (!urlInput.startsWith("https://script.google.com/")) {
+                showToast("Sila masukkan URL Google Apps Script Web App yang sah!", "error");
+                return;
+            }
+
+            // Simpan
+            localStorage.setItem("ncd_webapp_url", urlInput);
+            webAppUrl = urlInput;
+            isLiveMode = true;
+            updateConnectionStatus(true);
+            showToast("Tetapan disimpan! Menyambung ke Google Sheet...", "info");
+            
+            syncData();
+        }
+
+        function updateConnectionStatus(live) {
+            const dot = document.getElementById("connection-dot");
+            const text = document.getElementById("connection-text");
+            const desc = document.getElementById("connection-desc");
+
+            if (live) {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                text.innerText = "Mod Live Google Sheet";
+                text.className = "text-xs font-bold text-emerald-400";
+                desc.innerText = "Sistem bersambung secara langsung dengan Google Sheet.";
+            } else {
+                dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";
+                text.innerText = "Mod Simulasi";
+                text.className = "text-xs font-bold text-amber-400";
+                desc.innerText = "Menjalankan pangkalan data simulasi luar talian.";
+            }
+        }
+
+        // --- PENGAMBILAN DATA (SYNC DATA) ---
+        async function syncData() {
+            const syncSpinner = document.getElementById("sync-spinner");
+            syncSpinner.classList.add("animate-spin");
+
+            if (!isLiveMode || !webAppUrl) {
+                // Saja segarkan simulasi
+                setTimeout(() => {
+                    syncSpinner.classList.remove("animate-spin");
+                    updateLastSyncTime();
+                    showToast("Simulasi disegarkan!", "success");
+                }, 800);
+                return;
+            }
+
+            showToast("Memuat turun maklumat Google Sheet terkini...", "info");
+
+            try {
+                const response = await fetchWithRetry(webAppUrl, { method: "GET" });
+                const result = await response.json();
+
+                if (result.success) {
+                    currentData = result;
+                    rebuildDropdowns();
+                    updateDashboardStats();
+                    updateLastSyncTime();
+                    showToast("Data Google Sheet disegerakkan dengan jaya!", "success");
+                } else {
+                    showToast("Ralat: Gagal membaca data dari Sheets.", "error");
+                }
+            } catch (err) {
+                showToast("Gagal menghubungi Server Google. Menggunakan data simulasi sementara.", "error");
+            } finally {
+                syncSpinner.classList.remove("animate-spin");
+            }
+        }
+
+        function updateLastSyncTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById("last-sync-time").innerText = `Dikemas kini: ${timeStr}`;
+        }
+
+        // --- UTILITY: SALIN KOD ---
+        function copyAppsScript() {
+            const codeText = document.getElementById("apps-script-code").innerText;
+            
+            // Penggunaan fallback standard document.execCommand untuk persekitaran Sandbox
+            const tempTextArea = document.createElement("textarea");
+            tempTextArea.value = codeText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            
+            try {
+                document.execCommand("copy");
+                const copyBtnText = document.getElementById("copy-btn-text");
+                copyBtnText.innerText = "Berjaya Disalin!";
+                showToast("Kod disalin ke clipboard!", "success");
+                
+                setTimeout(() => {
+                    copyBtnText.innerText = "Salin Kod";
+                }, 2000);
+            } catch (err) {
+                showToast("Gagal menyalin kod secara automatik.", "error");
+            } finally {
+                document.body.removeChild(tempTextArea);
+            }
+        }
+
+        // --- UTILITY: RETRY DENGAN EXPONENTIAL BACKOFF ---
+        async function fetchWithRetry(url, options = {}, retries = 5, backoff = 1000) {
+            try {
+                const res = await fetch(url, options);
+                if (!res.ok) throw new Error(`HTTP Error Status: ${res.status}`);
+                return res;
+            } catch (err) {
+                if (retries <= 1) throw err;
+                await new Promise(resolve => setTimeout(resolve, backoff));
+                return fetchWithRetry(url, options, retries - 1, backoff * 2);
+            }
+        }
+    </script>
+</body>
+</html>
