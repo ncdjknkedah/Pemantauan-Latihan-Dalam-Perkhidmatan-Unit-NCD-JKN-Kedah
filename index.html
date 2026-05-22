@@ -749,7 +749,7 @@
             <div id="tab-individu" class="tab-content">
                 <div class="card card-body" style="display:flex;flex-direction:column;gap:8px;">
                     <label class="form-label">Pilih Rekod Kakitangan:</label>
-                    <p style="font-size:11px;color:var(--slate-400);">Pilih nama staf untuk melihat perincian sejarah latihan (kawasan sel B5:I)</p>
+                    <p style="font-size:11px;color:var(--slate-400);">Pilih nama staf untuk melihat perincian sejarah latihan (kawasan sel )</p>
                     <div style="margin-top:8px;">
                         <select id="staff-select-view" onchange="loadIndividualData()" class="form-control" style="max-width:420px;">
                             <option value="">-- Sila Pilih Staf --</option>
@@ -809,7 +809,7 @@
                                     <i data-lucide="info" style="width:14px;height:14px;"></i>
                                 </div>
                                 <p style="font-size:11px;color:var(--slate-600);line-height:1.6;">
-                                    Jumlah jam yang dipaparkan adalah daripada sel <strong style="color:var(--emerald-700);">D3</strong> pada sheet staf berkenaan. Setiap rekod latihan di kawasan <strong style="color:var(--emerald-700);">B5:I</strong> dijumlahkan secara automatik.
+                                    Jumlah jam yang dipaparkan adalah daripada sel <strong style="color:var(--emerald-700);">D3</strong> pada sheet staf berkenaan. Setiap rekod latihan di kawasan <strong style="color:var(--emerald-700);"></strong> dijumlahkan secara automatik.
                                 </p>
                             </div>
                         </div>
@@ -819,7 +819,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div>
-                                <p class="card-title">Sejarah Latihan & Kursus (B5:I)</p>
+                                <p class="card-title">Sejarah Latihan & Kursus ()</p>
                                 <p class="card-subtitle">Senarai latihan berdaftar bagi staf ini tahun 2026</p>
                             </div>
                             <div style="display:flex;align-items:center;gap:8px;">
@@ -857,7 +857,7 @@
                 <div class="card" style="max-width:760px;margin:0 auto;width:100%;">
                     <div style="padding:24px;background:linear-gradient(135deg,var(--emerald-600),#0d9488);border-radius:18px 18px 0 0;color:white;">
                         <h3 style="font-size:17px;font-weight:800;">Borang Daftar / Kemas Kini Latihan</h3>
-                        <p style="font-size:11px;opacity:0.85;margin-top:4px;">Daftarkan latihan baru. Data akan ditulis terus ke kawasan sel B5:I di bawah sheet nama staf yang dipilih.</p>
+                        <p style="font-size:11px;opacity:0.85;margin-top:4px;">Daftarkan latihan baru. Data akan ditulis terus ke kawasan sel  di bawah sheet nama staf yang dipilih.</p>
                     </div>
 
                     <form id="add-training-form" style="padding:24px;display:flex;flex-direction:column;gap:20px;" onsubmit="return false;">
@@ -1042,12 +1042,12 @@ function doGet(e) {
     // Ambil nilai dari sel D3 (Jumlah Jam Terkumpul)
     var totalHours = sheet.getRange("D3").getValue() || 0;
     
-    // Ambil rekod dari B5:I
+    // Ambil rekod dari B6:I
     var lastRow = sheet.getLastRow();
     var trainingList = [];
     
     if (lastRow >= 5) {
-      var range = sheet.getRange("B5:I" + lastRow);
+      var range = sheet.getRange("B6:I" + lastRow);
       var values = range.getValues();
       
       for (var j = 0; j &lt; values.length; j++) {
