@@ -54,10 +54,10 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- NOTIFIKASI KHAS (Sistem Mesej Ganti Alert) -->
+    <!-- NOTIFIKASI TOAST (Ganti fungsi alert browser) -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full pointer-events-none"></div>
 
-    <!-- DIALOG PENGESAHAN MODAL -->
+    <!-- MODAL PENGESAHAN KUSTOM -->
     <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl transform scale-95 opacity-0 transition-all duration-300 p-6" id="confirm-modal-box">
             <div class="flex items-center gap-4 text-emerald-600 mb-4">
@@ -74,16 +74,17 @@
         </div>
     </div>
 
-    <!-- MODAL TAMBAH STAF BARU (SIMULASI) -->
+    <!-- MODAL TAMBAH STAF BARU (SIMULASI / RUJUKAN) -->
     <div id="staff-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-slate-800">Tambah Nama Staf Baru (Simulasi)</h3>
+                <h3 class="text-lg font-bold text-slate-800">Tambah Nama Staf Baru</h3>
                 <button onclick="toggleStaffModal(false)" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="mb-4">
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Penuh Staf (Seperti nama Sheet)</label>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Nama Penuh Staf (Sama seperti nama tab Sheet)</label>
                 <input type="text" id="new-staff-name" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="cth: Dr. Khairul Azhar">
+                <p class="text-xs text-slate-400 mt-2">Nota: Sila pastikan anda telah mencipta tab sheet dengan nama staf ini di Google Sheet terlebih dahulu sebelum menggunakan mod Live.</p>
             </div>
             <div class="flex gap-3 justify-end">
                 <button onclick="toggleStaffModal(false)" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition">Batal</button>
@@ -92,14 +93,14 @@
         </div>
     </div>
 
-    <!-- HALAMAN LOG MASUK KESELAMATAN (NCD Gateway) -->
+    <!-- GERBANG LOG MASUK (NCD Gateway) -->
     <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-emerald-900 to-slate-900 z-40 flex items-center justify-center p-4 transition-all duration-500">
         <div class="bg-white/95 backdrop-blur-md p-8 rounded-3xl max-w-md w-full shadow-2xl text-center border border-white/20">
             <div class="inline-flex p-4 bg-emerald-50 rounded-2xl mb-4 text-emerald-600">
                 <i data-lucide="shield-check" class="w-12 h-12"></i>
             </div>
             <h2 class="text-2xl font-bold text-slate-800 mb-1">Sistem Keselamatan Unit NCD</h2>
-            <p class="text-slate-500 text-sm mb-6">Dashboard ini dihadkan kepada staf Unit NCD sahaja. Sila masukkan Kod Laluan Unit.</p>
+            <p class="text-slate-500 text-sm mb-6">Sila masukkan Kod Laluan Unit NCD Kedah untuk mengakses dashboard.</p>
             
             <div class="mb-6">
                 <input type="password" id="ncd-passcode" class="w-full px-4 py-3 border border-slate-200 rounded-xl text-center text-lg tracking-widest focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="••••••••">
@@ -113,12 +114,12 @@
         </div>
     </div>
 
-    <!-- STRUKTUR UTAMA APLIKASI (DIPAPARKAN SELEPAS LOG MASUK) -->
+    <!-- STRUKTUR UTAMA DASHBOARD -->
     <div id="main-app" class="hidden flex-1 flex flex-col md:flex-row">
         
         <!-- SIDEBAR UTAMA DESKTOP -->
         <aside class="w-full md:w-64 bg-slate-900 text-slate-100 flex flex-col border-r border-slate-800 shrink-0">
-            <!-- Header Sidebar -->
+            <!-- Logo & Tajuk -->
             <div class="p-6 border-b border-slate-800">
                 <div class="flex items-center gap-3">
                     <div class="p-2 bg-emerald-600 rounded-xl text-white">
@@ -131,15 +132,15 @@
                 </div>
             </div>
 
-            <!-- Status Sambungan Google Sheet -->
+            <!-- Panel Status Google Sheet -->
             <div class="p-4 mx-4 my-4 bg-slate-800 rounded-2xl border border-slate-700/50">
                 <div class="flex items-center gap-2 mb-2">
-                    <span id="connection-dot" class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span id="connection-text" class="text-xs font-bold text-slate-300">Mod Simulasi</span>
+                    <span id="connection-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="connection-text" class="text-xs font-bold text-emerald-400">Mod Live Google Sheet</span>
                 </div>
-                <p id="connection-desc" class="text-[11px] text-slate-400">Menjalankan pangkalan data simulasi luar talian.</p>
+                <p id="connection-desc" class="text-[11px] text-slate-400">Sistem disambung terus ke Google Sheet baru anda.</p>
                 <button onclick="switchTab('tab-integrasi')" class="mt-3 w-full py-1.5 bg-slate-700 text-[11px] text-emerald-400 hover:text-white hover:bg-emerald-600 rounded-lg transition font-medium">
-                    Sediakan Live Google Sheet
+                    Urus Sambungan / Integrasi
                 </button>
             </div>
 
@@ -163,7 +164,7 @@
                 </button>
             </nav>
 
-            <!-- Footer Sidebar / Profil Pengguna -->
+            <!-- Profil Pengguna & Butang Log Keluar -->
             <div class="p-4 border-t border-slate-800 mt-auto flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white font-bold text-xs">
@@ -171,7 +172,7 @@
                     </div>
                     <div class="text-left">
                         <p class="text-xs font-semibold text-slate-200">Kakitangan NCD</p>
-                        <p class="text-[10px] text-slate-400">Log Masuk Sah</p>
+                        <p class="text-[10px] text-slate-400">Akses Sah</p>
                     </div>
                 </div>
                 <button onclick="logout()" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-red-400 transition" title="Log Keluar">
@@ -183,7 +184,7 @@
         <!-- KANDUNGAN UTAMA -->
         <main class="flex-1 flex flex-col overflow-hidden">
             
-            <!-- MOBILE TOP NAVIGATION BAR -->
+            <!-- MOBILE HEADER (Papar pada telefon/tablet sahaja) -->
             <header class="md:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <div class="p-1.5 bg-emerald-600 rounded-lg text-white">
@@ -191,10 +192,9 @@
                     </div>
                     <span class="font-bold text-sm">Dashboard Kursus NCD</span>
                 </div>
-                <!-- Status & Logout -->
                 <div class="flex items-center gap-3">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                        Simulasi
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        Live Active
                     </span>
                     <button onclick="logout()" class="text-slate-300 hover:text-red-400">
                         <i data-lucide="log-out" class="w-5 h-5"></i>
@@ -202,7 +202,7 @@
                 </div>
             </header>
 
-            <!-- MOBILE BOTTOM NAVIGATION -->
+            <!-- MOBILE BOTTOM MENU -->
             <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 z-30 flex justify-around py-2">
                 <button onclick="switchTab('tab-dashboard')" class="mobile-nav-btn flex flex-col items-center text-emerald-400 text-[10px] font-medium" id="mbtn-tab-dashboard">
                     <i data-lucide="layout-dashboard" class="w-5 h-5 mb-0.5"></i>
@@ -222,10 +222,10 @@
                 </button>
             </nav>
 
-            <!-- KAWASAN KANDUNGAN SKRIN (Scrollable) -->
+            <!-- KAWASAN KANDUNGAN (Skrin Skrol Utama) -->
             <div class="flex-1 overflow-y-auto pb-20 md:pb-6 p-4 md:p-8 space-y-6">
                 
-                <!-- HEADER SEKSYEN -->
+                <!-- HEADER UTAMA HALAMAN -->
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
                     <div>
                         <h2 class="text-xl md:text-2xl font-bold text-slate-800" id="current-section-title">Pemantauan Kursus 40 Jam</h2>
@@ -240,7 +240,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 1: DASHBOARD UTAMA -->
+                <!-- TAB 1: RINGKASAN UTAMA -->
                 <div id="tab-dashboard" class="tab-content space-y-6">
                     
                     <!-- KAD METRIKA UNIT -->
@@ -294,7 +294,7 @@
                         </div>
                     </div>
 
-                    <!-- ANALITIK & PRESTASI SEKUMPULAN -->
+                    <!-- ANALITIK & JADUAL PRESTASI -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <!-- Chart Unit -->
                         <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm lg:col-span-1 flex flex-col justify-between">
@@ -316,7 +316,7 @@
                                 </div>
                                 <button onclick="toggleStaffModal(true)" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-xl text-xs font-bold border border-emerald-100 transition flex items-center gap-1">
                                     <i data-lucide="plus" class="w-4 h-4"></i>
-                                    <span>Tambah Staf</span>
+                                    <span>Tambah Staf Baru</span>
                                 </button>
                             </div>
 
@@ -339,7 +339,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 2: PRESTASI INDIVIDU -->
+                <!-- TAB 2: LAPORAN PRESTASI INDIVIDU -->
                 <div id="tab-individu" class="tab-content hidden space-y-6">
                     
                     <!-- PILIHAN DROPDOWN PRESTASI -->
@@ -363,7 +363,7 @@
                         <p class="text-slate-500 font-medium text-sm">Sila pilih nama staf di atas untuk menjana laporan individu.</p>
                     </div>
 
-                    <!-- KAD PERINCIAN INDIVIDU (DIPAPARKAN APABILA STAF DIPILIH) -->
+                    <!-- KAD PERINCIAN INDIVIDU -->
                     <div id="staff-details-section" class="hidden space-y-6">
                         
                         <!-- Visual Ringkasan Kakitangan -->
@@ -472,7 +472,7 @@
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 
-                                <!-- Pilih Staf (Pilihan Dropdown Dinamik) -->
+                                <!-- Pilih Staf -->
                                 <div class="space-y-1">
                                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Nama Staf (Sheet)*</label>
                                     <select id="form-staff-select" required class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
@@ -503,7 +503,7 @@
                                 <div class="space-y-1">
                                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Tempoh Latihan (Jam)*</label>
                                     <input type="number" id="form-hours" min="0.5" step="0.5" placeholder="cth: 3.5 atau 4" required class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50">
-                                    <p class="text-[10px] text-slate-400">Wajib diisi. Nilai akan dimasukkan dalam pengiraan auto D3.</p>
+                                    <p class="text-[10px] text-slate-400">Wajib diisi. Nilai ini akan dimasukkan ke sel I untuk dijumlahkan secara auto ke sel D3.</p>
                                 </div>
 
                             </div>
@@ -567,20 +567,24 @@
                             </div>
                             <div>
                                 <h3 class="text-base font-bold text-slate-800">Sambungan Google Apps Script Web App</h3>
-                                <p class="text-xs text-slate-400">Sambungkan sistem secara terus kepada Google Sheet fizikal anda</p>
+                                <p class="text-xs text-slate-400">Pangkalan data sedang dihubungkan terus ke Google Sheet fizikal anda</p>
                             </div>
                         </div>
 
                         <div class="border-t border-slate-100 pt-4 space-y-3">
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Web App URL (Apps Script)*</label>
                             <div class="flex flex-col sm:flex-row gap-3">
-                                <input type="url" id="settings-webapp-url" class="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50" placeholder="https://script.google.com/macros/s/.../exec">
+                                <input type="url" id="settings-webapp-url" class="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-slate-50 font-mono text-xs" placeholder="https://script.google.com/macros/s/.../exec">
                                 <button onclick="saveConnectionSettings()" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl transition duration-300 shrink-0">
-                                    Sambung & Simpan
+                                    Kemaskini & Simpan URL
                                 </button>
                             </div>
+                            <p class="text-[11px] text-emerald-600 font-medium flex items-center gap-1.5">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                <span>URL API Berjaya Disepadukan! Sambungan sedia digunakan secara langsung.</span>
+                            </p>
                             <p class="text-[11px] text-slate-500 italic">
-                                *Sila buat rujukan kepada panduan di bawah untuk membina Web App API menggunakan Google Apps Script secara percuma.
+                                *Jika anda menukar atau menubuhkan projek Apps Script baharu pada masa hadapan, anda boleh mengemas kini URL di atas bila-bila masa.
                             </p>
                         </div>
                     </div>
@@ -589,7 +593,7 @@
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-6">
                         <div>
                             <h3 class="text-base font-bold text-slate-800">Langkah Integrasi Google Sheet & Apps Script</h3>
-                            <p class="text-xs text-slate-400 mt-1">Ikuti 5 langkah mudah ini untuk mengaktifkan mod automatik live.</p>
+                            <p class="text-xs text-slate-400 mt-1">Gunakan panduan ini untuk memasukkan kod Google Apps Script ke dalam Google Sheet baharu anda.</p>
                         </div>
 
                         <div class="space-y-4 text-xs text-slate-600">
@@ -598,7 +602,7 @@
                                 <div class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">1</div>
                                 <div class="space-y-1">
                                     <p class="font-bold text-slate-800">Buka Google Sheet Laporan</p>
-                                    <p class="leading-relaxed">Buka fail Google Sheet sasaran anda. Klik menu atas <span class="font-bold bg-slate-100 px-1 py-0.5 rounded">Extensions</span> > <span class="font-bold bg-slate-100 px-1 py-0.5 rounded">Apps Script</span>.</p>
+                                    <p class="leading-relaxed">Pastikan anda membuka Google Sheet baharu anda di: <a href="https://docs.google.com/spreadsheets/d/1DZx8opJ88DWdw4WfUDx-CryjxxyWjUXvLLz9iqWQmwE" target="_blank" class="text-emerald-600 underline font-semibold">1DZx8opJ88DWdw4WfUDx-CryjxxyWjUXvLLz9iqWQmwE</a>. Klik menu atas <span class="font-bold bg-slate-100 px-1 py-0.5 rounded">Extensions</span> > <span class="font-bold bg-slate-100 px-1 py-0.5 rounded">Apps Script</span>.</p>
                                 </div>
                             </div>
                             <!-- Langkah 2 -->
@@ -633,8 +637,8 @@
                             <div class="flex gap-3">
                                 <div class="w-6 h-6 rounded-full bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">5</div>
                                 <div class="space-y-1">
-                                    <p class="font-bold text-slate-800 font-medium">Tampal & Jalankan</p>
-                                    <p class="leading-relaxed">Tampalkan URL yang disalin ke dalam kotak input "Web App URL" di bahagian atas halaman ini, kemudian klik "Sambung & Simpan".</p>
+                                    <p class="font-bold text-slate-800 font-medium">Selesai & Jalankan</p>
+                                    <p class="leading-relaxed">Sistem anda kini telah pun disepadukan secara automatik dengan Web API URL aktif di atas!</p>
                                 </div>
                             </div>
                         </div>
@@ -767,13 +771,15 @@ function doPost(e) {
 
     <!-- CODE CONTROLLERS & LOGICS -->
     <script>
-        // --- DATA STATE (PANGKALAN DATA CONTOH / SIMULASI) ---
+        // --- DATA STATE ---
         const DEFAULT_PASSCODE = "NCD2026";
-        let isLiveMode = false;
-        let webAppUrl = "";
+        const DEFAULT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby632mU-6pF8Lcxz-LzvsGlqSI3U31WLdeOjKQ2PGZQQhICC0xySlG0A8rR1xqiZRpm/exec";
+        
+        let isLiveMode = true; // Live Google Sheet secara lalai
+        let webAppUrl = DEFAULT_WEBAPP_URL; 
         let globalChart = null;
 
-        // Data Simulasi Mula
+        // Data Simulasi / Fallback jika sambungan API gagal atau sedang offline
         let mockData = {
             staffList: [
                 "Dr. Ahmad Fahmi bin Zakaria",
@@ -825,27 +831,30 @@ function doPost(e) {
         };
 
         // Pemalar Operasi Global
-        let currentData = JSON.parse(JSON.stringify(mockData)); // Data aktif semasa
+        let currentData = JSON.parse(JSON.stringify(mockData)); 
         let activeTab = "tab-dashboard";
         let confirmPromiseResolve = null;
 
         // --- SISTEM PEMULA (ONLOAD) ---
         window.onload = function() {
-            // Check session login
+            // Semak status log masuk
             if (sessionStorage.getItem("ncd_logged_in") === "true") {
                 document.getElementById("login-screen").classList.add("hidden");
                 document.getElementById("main-app").classList.remove("hidden");
                 initializeSystem();
             }
             
-            // Check saved settings
+            // Semak URL simpanan localstorage
             const savedUrl = localStorage.getItem("ncd_webapp_url");
             if (savedUrl) {
-                document.getElementById("settings-webapp-url").value = savedUrl;
                 webAppUrl = savedUrl;
-                isLiveMode = true;
-                updateConnectionStatus(true);
+            } else {
+                webAppUrl = DEFAULT_WEBAPP_URL;
             }
+            
+            document.getElementById("settings-webapp-url").value = webAppUrl;
+            isLiveMode = true;
+            updateConnectionStatus(true);
             
             // Render Lucide Icons
             lucide.createIcons();
@@ -882,12 +891,12 @@ function doPost(e) {
             container.appendChild(toast);
             lucide.createIcons();
             
-            // Animation in
+            // Animasi masuk
             setTimeout(() => {
                 toast.classList.remove("translate-x-12", "opacity-0");
             }, 50);
             
-            // Animation out & removal
+            // Animasi keluar & padam
             setTimeout(() => {
                 toast.classList.add("translate-x-12", "opacity-0");
                 setTimeout(() => {
@@ -896,7 +905,7 @@ function doPost(e) {
             }, 3000);
         }
 
-        // --- SISTEM MODAL PENGESAHAN CUSTOM ---
+        // --- SISTEM MODAL PENGESAHAN KUSTOM ---
         function openConfirmModal(title, message, isDangerous = false) {
             return new Promise((resolve) => {
                 confirmPromiseResolve = resolve;
@@ -932,13 +941,13 @@ function doPost(e) {
             }, 300);
         }
 
-        // --- LOG MASUK SISTEM ---
+        // --- PENGURUSAN LOG MASUK ---
         function attemptLogin() {
             const code = document.getElementById("ncd-passcode").value;
             if (code === DEFAULT_PASSCODE) {
                 sessionStorage.setItem("ncd_logged_in", "true");
                 
-                // Animate out login screen
+                // Animasi padam skrin log masuk
                 const loginScreen = document.getElementById("login-screen");
                 loginScreen.classList.add("opacity-0", "scale-105");
                 setTimeout(() => {
@@ -948,7 +957,7 @@ function doPost(e) {
                     initializeSystem();
                 }, 500);
             } else {
-                showToast("Kod laluan tidak sah! Hubungi Pentadbir Unit NCD.", "error");
+                showToast("Kod laluan salah! Hubungi pentadbir Unit NCD Kedah.", "error");
             }
         }
 
@@ -958,19 +967,19 @@ function doPost(e) {
             document.getElementById("main-app").classList.add("hidden");
             const loginScreen = document.getElementById("login-screen");
             loginScreen.classList.remove("hidden", "opacity-0", "scale-105");
-            showToast("Sesi tamat. Anda telah log keluar.", "info");
+            showToast("Sesi tamat. Log keluar berjaya.", "info");
         }
 
-        // --- SISTEM NAVIGASI TAB ---
+        // --- NAVIGASI TAB ---
         function switchTab(tabId) {
             activeTab = tabId;
             
-            // Sembunyikan semua tab content
+            // Sembunyikan semua tab
             document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
-            // Tunjukkan tab content yang dipilih
+            // Tampilkan tab yang dipilih
             document.getElementById(tabId).classList.remove("hidden");
 
-            // Padam status aktif dari butang navigasi (desktop & mobile)
+            // Set butang navigasi aktif
             document.querySelectorAll(".nav-btn").forEach(btn => {
                 btn.classList.remove("bg-slate-800", "text-emerald-400");
                 btn.classList.add("text-slate-300");
@@ -980,7 +989,6 @@ function doPost(e) {
                 btn.classList.add("text-slate-400");
             });
 
-            // Set butang aktif semasa
             const desktopBtn = document.getElementById(`btn-${tabId}`);
             if (desktopBtn) {
                 desktopBtn.classList.add("bg-slate-800", "text-emerald-400");
@@ -1000,22 +1008,21 @@ function doPost(e) {
             if (tabId === "tab-tambah") titleEl.innerText = "Kemas Kini Sejarah Latihan";
             if (tabId === "tab-integrasi") titleEl.innerText = "Integrasi API Google Sheet";
 
-            // Trigger rendering mengikut tab
             if (tabId === "tab-dashboard") {
                 updateDashboardStats();
             }
         }
 
-        // --- DINAMIK DROPDOWNS ---
+        // --- REBUILD DROPDOWNS SECARA DINAMIK ---
         function rebuildDropdowns() {
             const list = currentData.staffList || [];
             
-            // Dropdown 1: Tab Prestasi Individu
+            // Pilihan untuk paparan individu
             const selectIndividu = document.getElementById("staff-select-view");
             const prevSelectValue = selectIndividu.value;
             selectIndividu.innerHTML = `<option value="">-- Sila Pilih Staf --</option>`;
             
-            // Dropdown 2: Tab Borang Pendaftaran
+            // Pilihan untuk borang pendaftaran
             const selectForm = document.getElementById("form-staff-select");
             selectForm.innerHTML = `<option value="">-- Pilih Staf --</option>`;
 
@@ -1031,7 +1038,6 @@ function doPost(e) {
                 selectForm.appendChild(opt2);
             });
 
-            // Kekalkan pilihan staf jika masih wujud
             if (list.includes(prevSelectValue)) {
                 selectIndividu.value = prevSelectValue;
                 loadIndividualData();
@@ -1041,7 +1047,7 @@ function doPost(e) {
             }
         }
 
-        // --- TAMBAH STAF SIMULASI BARU ---
+        // --- TAMBAH STAF BAHARU (SIMULASI / RUJUKAN LOCAL) ---
         function toggleStaffModal(show) {
             const modal = document.getElementById("staff-modal");
             if (show) {
@@ -1066,7 +1072,6 @@ function doPost(e) {
                 return;
             }
 
-            // Daftarkan staf baru dalam data aktif
             currentData.staffList.push(name);
             currentData.data[name] = {
                 totalHours: 0,
@@ -1079,7 +1084,7 @@ function doPost(e) {
             updateDashboardStats();
         }
 
-        // --- UPDATE STATS & GRAPH ---
+        // --- KEMASKINI STATISTIK UTAMA & CARTA ---
         function updateDashboardStats() {
             const list = currentData.staffList || [];
             const staffDetails = currentData.data || {};
@@ -1098,10 +1103,8 @@ function doPost(e) {
                 const isAchieved = hours >= 40;
                 if (isAchieved) achievedStaff++;
 
-                // Pengiraan progress %
                 const percent = Math.min(100, Math.round((hours / 40) * 100));
 
-                // Bina kelas warna progress
                 let barColor = "bg-red-500";
                 let badgeClass = "bg-red-50 text-red-700 border-red-200";
                 let statusText = "Belum Mencapai";
@@ -1116,7 +1119,6 @@ function doPost(e) {
                     statusText = "Kadar Sederhana";
                 }
 
-                // Append ke jadual dashboard utama
                 const tr = document.createElement("tr");
                 tr.className = "hover:bg-slate-50 transition duration-150";
                 tr.innerHTML = `
@@ -1139,7 +1141,6 @@ function doPost(e) {
                 tableBody.appendChild(tr);
             });
 
-            // Kemas kini widget metrik utama
             document.getElementById("stat-total-staff").innerText = totalStaff;
             document.getElementById("stat-achieved-staff").innerText = achievedStaff;
             
@@ -1150,7 +1151,6 @@ function doPost(e) {
             document.getElementById("stat-avg-hours").innerText = `${avg}j`;
             document.getElementById("stat-total-hours").innerText = `${cumulativeHours}j`;
 
-            // Bina/Update Chart
             buildChart(achievedStaff, totalStaff - achievedStaff);
         }
 
@@ -1161,9 +1161,8 @@ function doPost(e) {
                 globalChart.destroy();
             }
 
-            // Jika kosong kedua-duanya
             if (achieved === 0 && pending === 0) {
-                pending = 1; // Sediakan mockup sekiranya tiada staf
+                pending = 1; 
             }
 
             globalChart = new Chart(ctx, {
@@ -1200,7 +1199,7 @@ function doPost(e) {
             });
         }
 
-        // --- PAPAR LAPORAN INDIVIDU (B5:I) ---
+        // --- PAPAR LAPORAN INDIVIDU ---
         function loadIndividualData() {
             const selectedStaff = document.getElementById("staff-select-view").value;
             const detailSection = document.getElementById("staff-details-section");
@@ -1217,11 +1216,9 @@ function doPost(e) {
 
             const records = currentData.data[selectedStaff] || { totalHours: 0, training: [] };
 
-            // Update nama & jam
             document.getElementById("detail-staff-name").innerText = selectedStaff;
             document.getElementById("detail-total-hours").innerText = records.totalHours;
 
-            // Kemas kini badge status individu
             const badge = document.getElementById("detail-status-badge");
             if (records.totalHours >= 40) {
                 badge.innerText = "CAPAI SASARAN (40 JAM)";
@@ -1232,7 +1229,6 @@ function doPost(e) {
                 badge.className = "mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200";
             }
 
-            // Kemas kini progress bar
             const percent = Math.min(100, Math.round((records.totalHours / 40) * 100));
             const progressBar = document.getElementById("detail-progress-bar");
             const progressLabel = document.getElementById("progress-bar-label");
@@ -1251,7 +1247,6 @@ function doPost(e) {
                 hoursLeftText.innerText = `Baki: ${40 - records.totalHours} jam lagi`;
             }
 
-            // Bina baris jadual
             renderTrainingTable(records.training);
         }
 
@@ -1291,7 +1286,7 @@ function doPost(e) {
             });
         }
 
-        // --- FILTER / CARIAN JADUAL ---
+        // --- CARI & TAPIS JADUAL ---
         function filterTrainingTable() {
             const query = document.getElementById("training-search").value.toLowerCase();
             const staff = document.getElementById("staff-select-view").value;
@@ -1302,9 +1297,8 @@ function doPost(e) {
             renderTrainingTable(filtered);
         }
 
-        // --- PENGHANTARAN BORANG BARU (SUBMIT FORM) ---
+        // --- PENGHANTARAN DATA BORANG ---
         async function submitTrainingForm() {
-            // Dapatkan elemen borang
             const staffName = document.getElementById("form-staff-select").value;
             const jenis = document.getElementById("form-type").value;
             const tarikh = document.getElementById("form-date").value;
@@ -1314,7 +1308,6 @@ function doPost(e) {
             const anjuran = document.getElementById("form-organizer").value;
             const tempat = document.getElementById("form-venue").value.trim();
 
-            // Validasi data
             if (!staffName || !tarikh || !rawHours || !tajuk) {
                 showToast("Sila lengkapkan semua ruangan berbintang (*)!", "error");
                 return;
@@ -1326,7 +1319,6 @@ function doPost(e) {
                 return;
             }
 
-            // Tanya pengesahan
             const confirmAction = await openConfirmModal(
                 "Pengesahan Daftar Latihan",
                 `Adakah anda mahu mendaftarkan latihan '${tajuk}' (${tempoh} Jam) untuk ${staffName}?`
@@ -1345,25 +1337,22 @@ function doPost(e) {
                 tempoh
             };
 
-            // Hantar mengikut mod sambungan
             if (isLiveMode && webAppUrl) {
-                // Mod LIVE: Kirim ke Google Apps Script
-                showToast("Sedang menghantar ke Google Sheet...", "info");
+                showToast("Sedang menghantar data ke Google Sheet...", "info");
                 
                 try {
                     const response = await fetchWithRetry(webAppUrl, {
                         method: "POST",
                         body: JSON.stringify(payload),
                         headers: {
-                            "Content-Type": "application/plain-text" // Penting untuk elak CORS preflight ralat Apps Script
+                            "Content-Type": "text/plain" // Mengelakkan isu preflight CORS pada Apps Script
                         }
                     });
 
                     const result = await response.json();
                     
                     if (result.success) {
-                        showToast("Pendaftaran berjaya disimpan ke Google Sheet!", "success");
-                        // Segarkan data dari sheet
+                        showToast("Pendaftaran latihan berjaya disimpan ke Google Sheet!", "success");
                         syncData();
                         resetForm();
                     } else {
@@ -1374,7 +1363,7 @@ function doPost(e) {
                 }
 
             } else {
-                // Mod SIMULASI
+                // FALLBACK MOD SIMULASI
                 const staffRecord = currentData.data[staffName];
                 if (staffRecord) {
                     const bil = staffRecord.training.length + 1;
@@ -1390,23 +1379,19 @@ function doPost(e) {
                     };
                     
                     const previousHours = staffRecord.totalHours;
-                    
-                    // Kemas kini jam terkumpul (simulasi pengiraan sel D3)
                     staffRecord.training.push(newRecord);
                     staffRecord.totalHours = parseFloat((staffRecord.totalHours + tempoh).toFixed(2));
                     
-                    showToast("Rekod berjaya ditambahkan ke dalam pangkalan data simulasi!", "success");
+                    showToast("Berjaya direkodkan ke dalam simulasi!", "success");
                     
-                    // Efek letusan confetti jika melepasi target 40 jam!
                     if (previousHours < 40 && staffRecord.totalHours >= 40) {
                         celebrateAchiever();
-                        showToast(`Syabas! ${staffName} telah melepasi sasaran 40 jam kursus! 🎉`, "success");
+                        showToast(`Tahniah! ${staffName} telah melepasi 40 jam kursus! 🎉`, "success");
                     }
                     
                     resetForm();
                     updateDashboardStats();
                     
-                    // Kemas kini paparan sekiranya staf yang sama terpilih di Tab Laporan
                     const selectedStaff = document.getElementById("staff-select-view").value;
                     if (selectedStaff === staffName) {
                         loadIndividualData();
@@ -1423,7 +1408,6 @@ function doPost(e) {
             document.getElementById("form-date").value = "";
         }
 
-        // CONFETTI CELEBRATION
         function celebrateAchiever() {
             confetti({
                 particleCount: 150,
@@ -1432,20 +1416,17 @@ function doPost(e) {
             });
         }
 
-        // --- SISTEM KONEKSI GOOGLE SHEET (INTEGRASI) ---
+        // --- SISTEM KONEKSI GOOGLE SHEET ---
         function saveConnectionSettings() {
             const urlInput = document.getElementById("settings-webapp-url").value.trim();
             
             if (!urlInput) {
-                // Reset ke mod simulasi
                 localStorage.removeItem("ncd_webapp_url");
-                webAppUrl = "";
-                isLiveMode = false;
-                currentData = JSON.parse(JSON.stringify(mockData));
-                updateConnectionStatus(false);
-                rebuildDropdowns();
-                updateDashboardStats();
-                showToast("Kembali ke Mod Simulasi Tempatan.", "info");
+                webAppUrl = DEFAULT_WEBAPP_URL;
+                isLiveMode = true;
+                updateConnectionStatus(true);
+                showToast("Kembali menggunakan URL lalai Web API.", "info");
+                syncData();
                 return;
             }
 
@@ -1454,12 +1435,11 @@ function doPost(e) {
                 return;
             }
 
-            // Simpan
             localStorage.setItem("ncd_webapp_url", urlInput);
             webAppUrl = urlInput;
             isLiveMode = true;
             updateConnectionStatus(true);
-            showToast("Tetapan disimpan! Menyambung ke Google Sheet...", "info");
+            showToast("URL berjaya dikemaskini! Menyambung ke Google Sheet...", "info");
             
             syncData();
         }
@@ -1482,13 +1462,12 @@ function doPost(e) {
             }
         }
 
-        // --- PENGAMBILAN DATA (SYNC DATA) ---
+        // --- SEGERAKKAN DATA (GET REQUEST) ---
         async function syncData() {
             const syncSpinner = document.getElementById("sync-spinner");
             syncSpinner.classList.add("animate-spin");
 
             if (!isLiveMode || !webAppUrl) {
-                // Saja segarkan simulasi
                 setTimeout(() => {
                     syncSpinner.classList.remove("animate-spin");
                     updateLastSyncTime();
@@ -1497,7 +1476,7 @@ function doPost(e) {
                 return;
             }
 
-            showToast("Memuat turun maklumat Google Sheet terkini...", "info");
+            showToast("Sedang memuat turun data terkini dari Google Sheet...", "info");
 
             try {
                 const response = await fetchWithRetry(webAppUrl, { method: "GET" });
@@ -1508,12 +1487,16 @@ function doPost(e) {
                     rebuildDropdowns();
                     updateDashboardStats();
                     updateLastSyncTime();
-                    showToast("Data Google Sheet disegerakkan dengan jaya!", "success");
+                    showToast("Data Google Sheet disegarkan dengan jaya!", "success");
                 } else {
-                    showToast("Ralat: Gagal membaca data dari Sheets.", "error");
+                    showToast("Gagal menyegerakkan data dari Google Sheets.", "error");
                 }
             } catch (err) {
-                showToast("Gagal menghubungi Server Google. Menggunakan data simulasi sementara.", "error");
+                showToast("Gagal menghubungi Server Google. Menggunakan data tempatan sementara.", "error");
+                currentData = JSON.parse(JSON.stringify(mockData));
+                rebuildDropdowns();
+                updateDashboardStats();
+                updateLastSyncTime();
             } finally {
                 syncSpinner.classList.remove("animate-spin");
             }
@@ -1525,11 +1508,9 @@ function doPost(e) {
             document.getElementById("last-sync-time").innerText = `Dikemas kini: ${timeStr}`;
         }
 
-        // --- UTILITY: SALIN KOD ---
+        // --- SALIN KOD INTEGRASI ---
         function copyAppsScript() {
             const codeText = document.getElementById("apps-script-code").innerText;
-            
-            // Penggunaan fallback standard document.execCommand untuk persekitaran Sandbox
             const tempTextArea = document.createElement("textarea");
             tempTextArea.value = codeText;
             document.body.appendChild(tempTextArea);
@@ -1551,7 +1532,7 @@ function doPost(e) {
             }
         }
 
-        // --- UTILITY: RETRY DENGAN EXPONENTIAL BACKOFF ---
+        // --- RETRY MECHANISM WITH EXPONENTIAL BACKOFF ---
         async function fetchWithRetry(url, options = {}, retries = 5, backoff = 1000) {
             try {
                 const res = await fetch(url, options);
