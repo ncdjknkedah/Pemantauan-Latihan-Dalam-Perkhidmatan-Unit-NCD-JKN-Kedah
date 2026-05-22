@@ -183,8 +183,6 @@
         .sidebar-logo h1 { font-size: 14px; font-weight: 800; letter-spacing: 1px; }
         .sidebar-logo p { font-size: 10px; color: var(--emerald-400); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* conn-panel removed */
-
         nav.sidebar-nav { flex: 1; padding: 0 16px; display: flex; flex-direction: column; gap: 4px; }
         .nav-btn {
             width: 100%; display: flex; align-items: center; gap: 12px;
@@ -456,7 +454,7 @@
         .loading-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px; }
         .loading-state p { font-size: 12px; color: var(--slate-400); }
 
-        /* ===== INDIVIDU DETAIL ===== */
+        /* ===== LOADING INDIVIDU DETAIL ===== */
         .detail-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media(min-width:768px) { .detail-grid { grid-template-columns: 1fr 2fr; } }
         .big-hours { font-size: 48px; font-weight: 900; color: var(--slate-800); line-height: 1; }
@@ -586,8 +584,6 @@
                 <p>Laporan Kursus 2026</p>
             </div>
         </div>
-
-
 
         <nav class="sidebar-nav">
             <button onclick="switchTab('tab-dashboard')" id="btn-tab-dashboard" class="nav-btn active">
@@ -947,7 +943,7 @@
                         </div>
                         <div>
                             <h3 style="font-size:16px;font-weight:700;color:var(--slate-800);">Sambungan Google Apps Script Web App</h3>
-                            <p style="font-size:11px;color:var(--slate-400);margin-top:3px;">Masukkan URL Web App yang dijana daripada Google Apps Script anda</p>
+                            <p style="font-size:11px;color:var(--slate-400);margin-top:3px;">Sistem anda kini sedia tersambung terus secara automatik ke fail Google Sheet anda</p>
                         </div>
                     </div>
 
@@ -964,7 +960,7 @@
                         </div>
                         <div id="url-status-msg" style="display:none;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;"></div>
                         <p style="font-size:11px;color:var(--slate-400);font-style:italic;">
-                            * Jika menukar projek Apps Script, kemaskini URL di atas dan klik Simpan URL.
+                            * Jika menukar projek Apps Script di masa hadapan, anda boleh menukar dan menyimpan URL tersuai baharu di atas.
                         </p>
                     </div>
                 </div>
@@ -973,15 +969,15 @@
                 <div class="card card-body" style="display:flex;flex-direction:column;gap:24px;">
                     <div>
                         <h3 style="font-size:16px;font-weight:700;color:var(--slate-800);">Langkah Integrasi Google Sheet & Apps Script</h3>
-                        <p style="font-size:11px;color:var(--slate-400);margin-top:4px;">Panduan memasang Google Apps Script pada Google Sheet anda</p>
+                        <p style="font-size:11px;color:var(--slate-400);margin-top:4px;">Rujukan memasang Google Apps Script pada Google Sheet baharu anda</p>
                     </div>
 
                     <div class="step-list">
                         <div class="step-item">
                             <div class="step-num">1</div>
                             <div>
-                                <p class="step-title">Buka Google Sheet Laporan</p>
-                                <p class="step-desc">Buka Google Sheet anda. Klik menu <code>Extensions</code> → <code>Apps Script</code>.</p>
+                                <p class="step-title">Buka Google Sheet Laporan Baharu</p>
+                                <p class="step-desc">Buka Google Sheet anda di <a href="https://docs.google.com/spreadsheets/d/1DZx8opJ88DWdw4WfUDx-CryjxxyWjUXvLLz9iqWQmwE" target="_blank">1DZx8opJ88DWdw4WfUDx-CryjxxyWjUXvLLz9iqWQmwE</a>. Klik menu <code>Extensions</code> → <code>Apps Script</code>.</p>
                             </div>
                         </div>
                         <div class="step-item">
@@ -1001,15 +997,15 @@
                         <div class="step-item">
                             <div class="step-num">4</div>
                             <div>
-                                <p class="step-title">Salin URL & Tampal di Sini</p>
-                                <p class="step-desc">Selepas deploy, salin <strong>Web App URL</strong> yang dipaparkan. Tampalkan URL tersebut ke kotak di atas, kemudian klik <strong>Simpan URL</strong>.</p>
+                                <p class="step-title">Salin URL & Tampal di Sini (Jika Perlu)</p>
+                                <p class="step-desc">Selepas deploy, sekiranya URL berbeza dengan URL sedia ada, masukkan ke kotak simpanan di atas dan klik <strong>Simpan URL</strong>.</p>
                             </div>
                         </div>
                         <div class="step-item">
                             <div class="step-num">5</div>
                             <div>
-                                <p class="step-title">Klik "Segarkan Data"</p>
-                                <p class="step-desc">Kembali ke halaman Utama, klik <strong>"Segarkan Data"</strong> untuk muat turun data terkini dari Google Sheet anda.</p>
+                                <p class="step-title">Sedia Digunakan!</p>
+                                <p class="step-desc">Dashboard ini telah diintegrasikan terus secara global dengan kod Web App Script yang sepadan dengan sheet baharu anda.</p>
                             </div>
                         </div>
                     </div>
@@ -1066,7 +1062,7 @@ function doGet(e) {
             formattedDate = rawDate ? rawDate.toString() : "";
           }
           trainingList.push({
-            bil:     row[0] || (j + 1),
+            bil:      row[0] || (j + 1),
             jenis:   row[1] || "",
             tarikh:  formattedDate,
             tajuk:   row[3] || "",
@@ -1173,9 +1169,14 @@ const TARGET_HOURS = 40;
 const STORAGE_KEY_URL   = 'ncd_webapp_url';
 const STORAGE_KEY_STAFF = 'ncd_demo_staff';
 
+// ===== HARDCODED GOOGLE APPS SCRIPT WEB APP URL =====
+// Anda boleh menukar terus URL di bawah ini sekiranya anda menukar Apps Script di masa hadapan.
+const DEFAULT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycby632mU-6pF8Lcxz-LzvsGlqSI3U31WLdeOjKQ2PGZQQhICC0xySlG0A8rR1xqiZRpm/exec';
+
 // ===== APP STATE =====
 let appState = {
-    webAppUrl: localStorage.getItem(STORAGE_KEY_URL) || '',
+    // Menggunakan URL yang disimpan dalam localStorage peranti, jika tiada ia akan menggunakan DEFAULT_WEBAPP_URL secara automatik
+    webAppUrl: localStorage.getItem(STORAGE_KEY_URL) || DEFAULT_WEBAPP_URL,
     staffList: [],
     allData: {},
     currentTab: 'tab-dashboard',
@@ -1288,9 +1289,6 @@ async function syncData() {
     }
 
     try {
-        // Use no-cors for Google Apps Script won't work — use a JSONP-like approach
-        // Actually Apps Script supports CORS if deployed properly.
-        // We use a timeout to detect failure gracefully.
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
 
@@ -1309,7 +1307,6 @@ async function syncData() {
         const text = await response.text();
         let json;
         try {
-            // Sometimes Apps Script returns with BOM or extra chars
             const clean = text.trim().replace(/^\uFEFF/, '');
             json = JSON.parse(clean);
         } catch(pe) {
@@ -1355,9 +1352,11 @@ function useDemo(reason) {
 }
 
 function finishSync() {
-    document.getElementById('refresh-btn').classList.remove('spinning');
+    const btn = document.getElementById('refresh-btn');
+    if (btn) btn.classList.remove('spinning');
     const now = new Date();
-    document.getElementById('last-sync-time').textContent = `Kemaskini: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    const timeEl = document.getElementById('last-sync-time');
+    if (timeEl) timeEl.textContent = `Kemaskini: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
     appState.isLoading = false;
 }
 
@@ -1521,7 +1520,7 @@ function renderDashboardTable() {
                     <div class="progress-track" style="flex:1;">
                         <div class="progress-fill ${fillClass}" style="width:${pct}%;"></div>
                     </div>
-                    <span style="font-size:10px;font-weight:700;color:var(--slate-500);width:32px;text-align:right;">${pct}%</span>
+                    <span style="font-size:10px;font-weight:700;color:var(--slate-50);width:32px;text-align:right;">${pct}%</span>
                 </div>
             </td>
         </tr>`;
@@ -1703,12 +1702,10 @@ async function submitTrainingForm() {
     const payload = { staffName, jenis, tarikh, tajuk, tempoh, kategori, anjuran, tempat };
 
     if (appState.isDemo || !appState.webAppUrl) {
-        // Demo mode — save locally
         addTrainingLocal(payload);
         return;
     }
 
-    // LIVE mode — POST to Apps Script
     const btn = document.getElementById('submit-btn');
     btn.disabled = true;
     btn.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></span> Menghantar...`;
@@ -1808,9 +1805,11 @@ async function testConnection() {
 
 function showUrlStatus(ok, msg) {
     const el = document.getElementById('url-status-msg');
-    el.style.display = 'flex';
-    el.style.color   = ok ? 'var(--emerald-600)' : 'var(--red-500)';
-    el.textContent   = msg;
+    if (el) {
+        el.style.display = 'flex';
+        el.style.color   = ok ? 'var(--emerald-600)' : 'var(--red-500)';
+        el.textContent   = msg;
+    }
 }
 
 // ============================================================
@@ -1914,7 +1913,6 @@ function switchTab(tabId) {
 // ============================================================
 function copyAppsScript() {
     const code = document.getElementById('apps-script-code');
-    // Get text content (without HTML entities)
     const text = code.innerText || code.textContent;
     navigator.clipboard.writeText(text).then(() => {
         setText('copy-btn-text', '✓ Disalin!');
@@ -1968,7 +1966,9 @@ function showConfirm(title, msg, okText = 'Ya, Teruskan', type = 'warning', cb) 
     setText('confirm-message', msg);
     setText('confirm-ok-btn', okText);
     const okBtn = document.getElementById('confirm-ok-btn');
-    okBtn.className = `btn btn-${type === 'warning' ? 'danger' : 'primary'}`;
+    if (okBtn) {
+        okBtn.className = `btn btn-${type === 'warning' ? 'danger' : 'primary'}`;
+    }
     document.getElementById('confirm-modal').classList.add('active');
 }
 
@@ -2027,4 +2027,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
