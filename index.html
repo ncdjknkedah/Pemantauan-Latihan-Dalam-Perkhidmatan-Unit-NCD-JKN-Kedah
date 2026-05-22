@@ -229,7 +229,13 @@
             flex: 1; overflow-y: auto; padding: 28px 32px;
             display: flex; flex-direction: column; gap: 24px;
         }
-        @media(max-width:767px) { .content-area { padding: 16px; padding-bottom: 80px; } }
+        @media(max-width:767px) { 
+            .content-area { 
+                padding: 16px; 
+                padding-bottom: 120px !important; /* Ditingkatkan untuk mengelakkan halangan bar navigasi bawah */
+            } 
+            aside { display: none; } 
+        }
 
         .page-header {
             display: flex; align-items: flex-start; justify-content: space-between;
@@ -749,7 +755,7 @@
             <div id="tab-individu" class="tab-content">
                 <div class="card card-body" style="display:flex;flex-direction:column;gap:8px;">
                     <label class="form-label">Pilih Rekod Kakitangan:</label>
-                    <p style="font-size:11px;color:var(--slate-400);">Pilih nama staf untuk melihat perincian sejarah latihan (kawasan sel )</p>
+                    <p style="font-size:11px;color:var(--slate-400);">Pilih nama staf untuk melihat perincian sejarah latihan (kawasan sel B5:I)</p>
                     <div style="margin-top:8px;">
                         <select id="staff-select-view" onchange="loadIndividualData()" class="form-control" style="max-width:420px;">
                             <option value="">-- Sila Pilih Staf --</option>
@@ -809,7 +815,7 @@
                                     <i data-lucide="info" style="width:14px;height:14px;"></i>
                                 </div>
                                 <p style="font-size:11px;color:var(--slate-600);line-height:1.6;">
-                                    Jumlah jam yang dipaparkan adalah daripada sel <strong style="color:var(--emerald-700);">D3</strong> pada sheet staf berkenaan. Setiap rekod latihan di kawasan <strong style="color:var(--emerald-700);"></strong> dijumlahkan secara automatik.
+                                    Jumlah jam yang dipaparkan adalah daripada sel <strong style="color:var(--emerald-700);">D3</strong> pada sheet staf berkenaan. Setiap rekod latihan di kawasan <strong style="color:var(--emerald-700);">B5:I</strong> dijumlahkan secara automatik.
                                 </p>
                             </div>
                         </div>
@@ -819,7 +825,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div>
-                                <p class="card-title">Sejarah Latihan & Kursus ()</p>
+                                <p class="card-title">Sejarah Latihan & Kursus (B5:I)</p>
                                 <p class="card-subtitle">Senarai latihan berdaftar bagi staf ini tahun 2026</p>
                             </div>
                             <div style="display:flex;align-items:center;gap:8px;">
@@ -857,7 +863,7 @@
                 <div class="card" style="max-width:760px;margin:0 auto;width:100%;">
                     <div style="padding:24px;background:linear-gradient(135deg,var(--emerald-600),#0d9488);border-radius:18px 18px 0 0;color:white;">
                         <h3 style="font-size:17px;font-weight:800;">Borang Daftar / Kemas Kini Latihan</h3>
-                        <p style="font-size:11px;opacity:0.85;margin-top:4px;">Daftarkan latihan baru. Data akan ditulis terus ke kawasan sel  di bawah sheet nama staf yang dipilih.</p>
+                        <p style="font-size:11px;opacity:0.85;margin-top:4px;">Daftarkan latihan baru. Data akan ditulis terus ke kawasan sel B5:I di bawah sheet nama staf yang dipilih.</p>
                     </div>
 
                     <form id="add-training-form" style="padding:24px;display:flex;flex-direction:column;gap:20px;" onsubmit="return false;">
@@ -900,18 +906,24 @@
 
                         <div class="form-grid">
                             <div class="form-group">
-                                <label class="form-label">Kategori</label>
-                                <input type="text" id="form-category" placeholder="cth: Klinikal, Umum, Pembangunan" class="form-control">
+                                <label class="form-label">Kategori*</label>
+                                <select id="form-category" required class="form-control">
+                                    <option value="">-- Pilih Kategori CPD --</option>
+                                    <option value="A1 Congress/Conference (Local/international)">A1 Congress/Conference (Local/international)</option>
+                                    <option value="A2 Scientific Meetings of Chapters of Academy/ Universities/ Colleges/Association/Institutions/ Ministry of Health & others">A2 Scientific Meetings of Chapters of Academy/ Universities/ Colleges/Association/Institutions/ Ministry of Health & others</option>
+                                    <option value="A3 Workshops/ Courses/ Fellowships/ attachment etc. (include hands-on & skills courses)">A3 Workshops/ Courses/ Fellowships/ attachment etc. (include hands-on & skills courses)</option>
+                                    <option value="A4 CME sessions/ other professional activities">A4 CME sessions/ other professional activities</option>
+                                    <option value="A5 Presentation at accredited meeting">A5 Presentation at accredited meeting</option>
+                                    <option value="A6 Publication of articles in journal/ chapters in book /reports">A6 Publication of articles in journal/ chapters in book /reports</option>
+                                    <option value="A7 Self-study/ Group study/ Distance learning">A7 Self-study/ Group study/ Distance learning</option>
+                                    <option value="A8 CME Online">A8 CME Online</option>
+                                    <option value="A9 Post-basic courses">A9 Post-basic courses</option>
+                                    <option value="B2 Other supporting activities related to personal development and self-improvement">B2 Other supporting activities related to personal development and self-improvement</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Anjuran</label>
-                                <select id="form-organizer" class="form-control">
-                                    <option value="JKNK">JKNK</option>
-                                    <option value="PKDKM">PKDKM</option>
-                                    <option value="KKM">KKM</option>
-                                    <option value="AGENSI LUAR">AGENSI LUAR</option>
-                                    <option value="LAIN-LAIN">LAIN-LAIN</option>
-                                </select>
+                                <input type="text" id="form-organizer" placeholder="cth: JKNK, PKDKM, Agensi Luar" class="form-control">
                             </div>
                         </div>
 
@@ -976,7 +988,7 @@
                         <div class="step-item">
                             <div class="step-num">1</div>
                             <div>
-                                <p class="step-title">Buka Google Sheet Laporan Baharu</p>
+                                <p class="step-title">Buka Google Sheet Laporan Latihan</p>
                                 <p class="step-desc">Buka Google Sheet anda di <a href="https://docs.google.com/spreadsheets/d/1DZx8opJ88DWdw4WfUDx-CryjxxyWjUXvLLz9iqWQmwE" target="_blank">1DZx8opJ88DWdw4WfUDx-CryjxxyWjUXvLLz9iqWQmwE</a>. Klik menu <code>Extensions</code> → <code>Apps Script</code>.</p>
                             </div>
                         </div>
@@ -1042,12 +1054,12 @@ function doGet(e) {
     // Ambil nilai dari sel D3 (Jumlah Jam Terkumpul)
     var totalHours = sheet.getRange("D3").getValue() || 0;
     
-    // Ambil rekod dari B6:I
+    // Ambil rekod dari B5:I
     var lastRow = sheet.getLastRow();
     var trainingList = [];
     
     if (lastRow >= 5) {
-      var range = sheet.getRange("B6:I" + lastRow);
+      var range = sheet.getRange("B5:I" + lastRow);
       var values = range.getValues();
       
       for (var j = 0; j &lt; values.length; j++) {
@@ -1170,7 +1182,7 @@ const STORAGE_KEY_URL   = 'ncd_webapp_url';
 const STORAGE_KEY_STAFF = 'ncd_demo_staff';
 
 // ===== HARDCODED GOOGLE APPS SCRIPT WEB APP URL =====
-// Anda boleh menukar terus URL di bawah ini sekiranya anda menukar Apps Script di masa hadapan.
+// Menyambungkan terus ke Web API Apps Script baharu anda secara lalai
 const DEFAULT_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxQZ2WoPF2HxbFMAbupWoCovUR4AUChZweI8gzRpmo4fua1VcH4QBwMGNaqVVZSwIqD/exec';
 
 // ===== APP STATE =====
@@ -1191,7 +1203,7 @@ const DEMO_STAFF = JSON.parse(localStorage.getItem(STORAGE_KEY_STAFF) || '["Dr. 
 function generateDemoData(staffList) {
     const data = {};
     const types = ['KURSUS', 'BENGKEL', 'TAKLIMAT', 'CME', 'SEMINAR'];
-    const cats  = ['Klinikal', 'Umum', 'Pembangunan', 'ICT', 'Pengurusan'];
+    const cats  = ['A1 Congress/Conference (Local/international)', 'A3 Workshops/ Courses/ Fellowships/ attachment etc. (include hands-on & skills courses)', 'A4 CME sessions/ other professional activities'];
     const orgs  = ['JKNK', 'PKDKM', 'KKM', 'AGENSI LUAR'];
     const places= ['Hospital Sultanah Bahiyah', 'Pejabat Kesihatan Daerah Kota Setar', 'Wisma PERKESO', 'Online - Webinar', 'Pusat Latihan JKN Kedah'];
     const titles= [
@@ -1690,14 +1702,16 @@ async function submitTrainingForm() {
     const tarikh    = document.getElementById('form-date').value;
     const tajuk     = document.getElementById('form-title').value.trim();
     const tempoh    = parseFloat(document.getElementById('form-hours').value);
-    const kategori  = document.getElementById('form-category').value.trim();
-    const anjuran   = document.getElementById('form-organizer').value;
+    const kategori  = document.getElementById('form-category').value;
+    const anjuran   = document.getElementById('form-organizer').value.trim();
     const tempat    = document.getElementById('form-venue').value.trim();
 
     if (!staffName) { showToast('Ralat', 'Sila pilih nama staf terlebih dahulu.', 'error'); return; }
+    if (!jenis)     { showToast('Ralat', 'Sila pilih jenis latihan.', 'error'); return; }
     if (!tajuk)     { showToast('Ralat', 'Sila isi tajuk latihan.', 'error'); return; }
     if (!tarikh)    { showToast('Ralat', 'Sila isi tarikh latihan.', 'error'); return; }
     if (!tempoh || tempoh <= 0) { showToast('Ralat', 'Sila isi tempoh jam yang sah (lebih dari 0).', 'error'); return; }
+    if (!kategori)  { showToast('Ralat', 'Sila pilih kategori CPD.', 'error'); return; }
 
     const payload = { staffName, jenis, tarikh, tajuk, tempoh, kategori, anjuran, tempat };
 
