@@ -755,7 +755,7 @@
             <div id="tab-individu" class="tab-content">
                 <div class="card card-body" style="display:flex;flex-direction:column;gap:8px;">
                     <label class="form-label">Pilih Rekod Kakitangan:</label>
-                    <p style="font-size:11px;color:var(--slate-400);">Pilih nama staf untuk melihat perincian sejarah latihan (kawasan sel B5:I)</p>
+                    <p style="font-size:11px;color:var(--slate-400);">Pilih nama staf untuk melihat perincian sejarah latihan</p>
                     <div style="margin-top:8px;">
                         <select id="staff-select-view" onchange="loadIndividualData()" class="form-control" style="max-width:420px;">
                             <option value="">-- Sila Pilih Staf --</option>
@@ -779,10 +779,10 @@
                             <div>
                                 <span class="badge badge-gray" style="margin-bottom:12px;">PROFIL UNIT NCD</span>
                                 <h3 id="detail-staff-name" style="font-size:18px;font-weight:800;color:var(--slate-800);margin-top:8px;">NAMA STAF</h3>
-                                <p style="font-size:11px;color:var(--slate-400);margin-top:4px;">Kakitangan Berdaftar Unit NCD</p>
+                                <p style="font-size:11px;color:var(--slate-400);margin-top:4px;">Kakitangan Unit NCD</p>
                             </div>
                             <div style="border-top:1px solid var(--slate-100);padding-top:16px;margin-top:20px;">
-                                <p style="font-size:10px;font-weight:700;color:var(--slate-400);text-transform:uppercase;letter-spacing:0.5px;">Jumlah Jam Terkumpul (Sel D3)</p>
+                                <p style="font-size:10px;font-weight:700;color:var(--slate-400);text-transform:uppercase;letter-spacing:0.5px;">Jumlah Jam Terkumpul</p>
                                 <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px;">
                                     <span id="detail-total-hours" class="big-hours">0</span>
                                     <span class="big-hours-unit">/ 40 jam</span>
@@ -815,7 +815,7 @@
                                     <i data-lucide="info" style="width:14px;height:14px;"></i>
                                 </div>
                                 <p style="font-size:11px;color:var(--slate-600);line-height:1.6;">
-                                    Jumlah jam yang dipaparkan adalah daripada sel <strong style="color:var(--emerald-700);">D3</strong> pada sheet staf berkenaan. Setiap rekod latihan di kawasan <strong style="color:var(--emerald-700);">B5:I</strong> dijumlahkan secara automatik.
+                                    Jumlah jam yang dipaparkan dan rekod latihan adalah secara automatik.
                                 </p>
                             </div>
                         </div>
@@ -825,7 +825,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div>
-                                <p class="card-title">Sejarah Latihan & Kursus (B5:I)</p>
+                                <p class="card-title">Sejarah Latihan & Kursus</p>
                                 <p class="card-subtitle">Senarai latihan berdaftar bagi staf ini tahun 2026</p>
                             </div>
                             <div style="display:flex;align-items:center;gap:8px;">
@@ -894,7 +894,7 @@
                             <div class="form-group">
                                 <label class="form-label">Tempoh Latihan (Jam)*</label>
                                 <input type="number" id="form-hours" min="0.5" max="200" step="0.5" placeholder="cth: 3.5" required class="form-control">
-                                <p class="form-hint">Nilai ini akan dijumlahkan ke sel D3 secara automatik.</p>
+                                <p class="form-hint">Nilai ini dijumlahkan secara automatik.</p>
                             </div>
                         </div>
 
